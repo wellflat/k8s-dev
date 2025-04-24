@@ -1,0 +1,9 @@
+[project]
+name = "k8s-dev"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "ray[default]>=2.44.1",
+]
