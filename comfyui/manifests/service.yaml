@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: comfyui-service
+spec:
+  selector:
+    app: comfyui
+  ports:
+    - protocol: TCP
+      port: 80 # Kubernetes サービスが公開するポート
+      targetPort: 8188 # Pod のコンテナポート
+      nodePort: 30200 # NodePort のポート番号
+  type: NodePort
