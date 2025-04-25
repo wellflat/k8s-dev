@@ -14,7 +14,7 @@ services:
     runtime: nvidia
     environment:
       - NVIDIA_VISIBLE_DEVICES=all
-      - NVIDIA_DRIVER_CAPABILITIES=all
+        NVIDIA_DRIVER_CAPABILITIES=all
     deploy:
       resources:
         reservations:
@@ -22,9 +22,7 @@ services:
             - driver: nvidia
               count: all
               capabilities: ["gpu"]
-    #command: ["sleep", "infinity"] # debug用コンテナが終了しないようにする
     ports:
-      # host:container
       - "8188:8188"
     networks:
       comfyui-network:

@@ -8,7 +8,6 @@ ENV DEBIAN_FRONTEND=noninteractive
 WORKDIR /workspace
 
 # Multi-stage build, package stage
-#FROM nvcr.io/nvidia/pytorch:24.10-py3
 FROM pytorch/pytorch:2.6.0-cuda12.4-cudnn9-runtime
 
 ENV DEBIAN_FRONTEND=noninteractive \
@@ -26,14 +25,15 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 
 COPY ComfyUI/ ComfyUI/
 COPY ComfyUI-Manager/ ComfyUI/custom_nodes/ComfyUI-Manager/
+COPY ./entrypoint.sh /workspace/entrypoint.sh
 
 RUN --mount=type=cache,target=/root/.cache/pip,sharing=locked \
     pip3 install -r ComfyUI/requirements.txt
-#RUN --mount=type=cache,target=/root/.cache/pip,sharing=locked \
-#    pip3 install -r ComfyUI/custom_nodes/ComfyUI-Manager/requirements.txt
+RUN --mount=type=cache,target=/root/.cache/pip,sharing=locked \
+    pip3 install -r ComfyUI/custom_nodes/ComfyUI-Manager/requirements.txt
 
 ENV COMFYUI_PATH=/workspace/ComfyUI \
-    COMFYUI_MODEL_DIR=/workspace/ComfyUI/models
-    #COMFYUI_VERSION="v0.3.29"
+    COMFYUI_MODEL_DIR=/workspace/ComfyUI/models \
+    COMFYUI_VERSION="v0.3.29"
 
-CMD ["python3", "ComfyUI/main.py", "--listen", "0.0.0.0"]
+CMD ["/bin/bash", "entrypoint.sh"]
