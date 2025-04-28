@@ -23,9 +23,9 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     apt-get install -y git libgl1-mesa-dev libglib2.0-0 && \
     rm -rf /var/lib/apt/lists/*
 
-COPY ComfyUI/ ComfyUI/
-COPY ComfyUI-Manager/ ComfyUI/custom_nodes/ComfyUI-Manager/
-COPY ./entrypoint.sh /workspace/entrypoint.sh
+COPY --chmod=775 ComfyUI/ ComfyUI/
+COPY --chmod=775 ComfyUI-Manager/ ComfyUI/custom_nodes/ComfyUI-Manager/
+COPY --chmod=775 ./entrypoint.sh /workspace/entrypoint.sh
 
 RUN --mount=type=cache,target=/root/.cache/pip,sharing=locked \
     pip3 install -r ComfyUI/requirements.txt
@@ -33,7 +33,6 @@ RUN --mount=type=cache,target=/root/.cache/pip,sharing=locked \
     pip3 install -r ComfyUI/custom_nodes/ComfyUI-Manager/requirements.txt
 
 ENV COMFYUI_PATH=/workspace/ComfyUI \
-    COMFYUI_MODEL_DIR=/workspace/ComfyUI/models \
-    COMFYUI_VERSION="v0.3.29"
+    COMFYUI_MODEL_DIR=/workspace/ComfyUI/models
 
 CMD ["/bin/bash", "entrypoint.sh"]
