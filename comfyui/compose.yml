@@ -13,8 +13,9 @@ services:
     runtime: nvidia
     environment:
       - NVIDIA_VISIBLE_DEVICES=all
-        NVIDIA_DRIVER_CAPABILITIES=all
-        LOWVRAM=1
+      - NVIDIA_DRIVER_CAPABILITIES=all
+      - COMFYUI_PORT=8188
+      - LOWVRAM=1
     deploy:
       resources:
         reservations:
