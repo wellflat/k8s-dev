@@ -136,8 +136,8 @@ func main() {
 		return
 	}
 
-	promptText := "A beautiful girl in a fantasy world"
-	err = customGenerator.GenerateAndQueue(promptText)
+	prompt := "A beautiful girl in a fantasy world"
+	err = customGenerator.GenerateAndQueue(prompt)
 	if err != nil {
 		fmt.Println("Error generating and queueing prompt:", err)
 	}
