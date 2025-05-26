@@ -1,0 +1,33 @@
+services:
+  app:
+    container_name: comfyui
+    image: comfyui:0.3.29
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - type: bind
+        source: ./ComfyUI/models
+        target: /workspace/ComfyUI/models
+      #- ./input:/ComfyUI/input
+    runtime: nvidia
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=all
+      - COMFYUI_PORT=8188
+      - LOWVRAM=1
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: ["gpu"]
+    ports:
+      - "8188:8188"
+    networks:
+      comfyui-network:
+        aliases:
+          - comfyui
+networks:
+  comfyui-network:

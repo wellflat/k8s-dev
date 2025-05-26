@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: monitor-dashboard-service
+spec:
+  selector:
+    app: monitor-dashboard
+  ports:
+    - protocol: TCP
+      port: 3030 # Kubernetes サービスが公開するポート
+      targetPort: 3000 # Pod のコンテナポート
+      nodePort: 30200 # NodePort のポート番号
+  type: NodePort

@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: comfyui-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: comfyui
+  template:
+    metadata:
+      labels:
+        app: comfyui
+    spec:
+      containers:
+        - name: comfyui
+          image: wellflat/comfyui:latest
+          ports:
+            - containerPort: 8188
+          resources:
+            limits:
+              nvidia.com/gpu: 1
+            requests:
+              nvidia.com/gpu: 1
+          volumeMounts:
+            - name: comfyui-model
+              mountPath: /workspace/ComfyUI/models
+          env:
+            - name: NVIDIA_VISIBLE_DEVICES
+              value: all
+            - name: NVIDIA_DRIVER_CAPABILITIES
+              value: all
+            - name: COMFYUI_PORT
+              value: "8188"
+            - name: LOWVRAM
+              value: "1"
+          livenessProbe:
+            httpGet:
+              path: /system_stats
+              port: 8188
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /system_stats
+              port: 8188
+            initialDelaySeconds: 10
+            periodSeconds: 10
+      volumes:
+        - name: comfyui-model
+          persistentVolumeClaim:
+            claimName: comfyui-model-pvc
