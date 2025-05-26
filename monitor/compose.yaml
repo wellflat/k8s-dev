@@ -1,0 +1,45 @@
+services:
+  influxdb:
+    image: influxdb:1.8
+    container_name: influxdb
+    ports:
+      - "8086:8086"
+    volumes:
+      - ./influxdb:/var/lib/influxdb
+    environment:
+      - INFLUXDB_DB=llmbench
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    user: "${UID:-1000}"
+    volumes:
+      - ./grafana:/var/lib/grafana
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+    restart: unless-stopped
+
+  gpumonitor:
+    build:
+      context: ./monitor
+      dockerfile: Dockerfile
+    container_name: gpumonitor
+    restart: always
+    environment:
+      - INFLUXDB_HOST=localhost
+      - INFLUXDB_PORT=8086
+      - INFLUXDB_DBNAME=llmbench
+      - WAIT_TIME=5
+    tty: true
+    network_mode: host
+    volumes:
+      - ./monitor/src:/workspace
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]
+    command: ["python3", "monitor.py"]

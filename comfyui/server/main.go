@@ -50,12 +50,12 @@ func NewComfyUIPromptGenerator(serverAddress string, workflowPath string) (*Comf
 }
 
 func (g *ComfyUIPromptGenerator) loadWorkflow() (map[string]interface{}, error) {
+	// Use embedded content instead of reading from file
 	/*
 	content, err := os.ReadFile(g.WorkflowPath)
 	if err != nil {
 		return nil, fmt.Errorf("workflow file not found: %s", g.WorkflowPath)
 	}*/
-
 	var workflow map[string]interface{}
 	if err := json.Unmarshal(workflowContent, &workflow); err != nil {
 		return nil, fmt.Errorf("invalid JSON in workflow file: %s - %w", g.WorkflowPath, err)
@@ -143,7 +143,7 @@ func main() {
 	engine := gin.Default()
 	engine.GET("/", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
-			"message": "hello world",
+			"message": "hello comfy",
 		})
 	})
 
