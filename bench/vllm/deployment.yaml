@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: vllm
-        image: vllm/vllm-openai:latest
+        image: wellflat/vllm-server
         ports:
           - containerPort: 8000
         resources:
@@ -34,6 +34,8 @@ spec:
             secretKeyRef:
               name: hf-token-secret
               key: hf_token
+        - name: HF_HOME
+          value: /workspace
         command: ["/bin/sh", "-c"]
         args:
            - |
@@ -44,28 +46,32 @@ spec:
             --max_num_batched_tokens 1024 \
             --gpu-memory-utilization 0.8 \
             --quantization fp8
+        #Your GPU does not have native support for FP8 computation but FP8 quantization is being used. Weight-only FP8 compression will be used leveraging the Marlin kernel. This may degrade performance for compute-heavy workloads.
+        securityContext:
+          runAsUser: 1001
         volumeMounts:
           - name: llm-bench-model
-            mountPath: /root/.cache/huggingface/hub
+            #mountPath: /root/.cache/huggingface/hub
+            mountPath: /workspace/hub
           - name: shm
             mountPath: /dev/shm
         livenessProbe:
           httpGet:
             path: /health
             port: 8000
-          initialDelaySeconds: 120
+          initialDelaySeconds: 180
           periodSeconds: 30
         readinessProbe:
           httpGet:
             path: /health
             port: 8000
-          initialDelaySeconds: 120
+          initialDelaySeconds: 180
           periodSeconds: 30
         startupProbe:
           httpGet:
             path: /health
             port: 8000
-          initialDelaySeconds: 90
+          initialDelaySeconds: 120
       volumes:
         - name: llm-bench-model
           persistentVolumeClaim:
