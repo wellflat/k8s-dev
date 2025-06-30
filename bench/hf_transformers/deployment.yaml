@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hf-transformers-deployment
+  labels:
+    app: hf-transformers
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hf-transformers
+  template:
+    metadata:
+      labels:
+        app: hf-transformers
+    spec:
+      containers:
+        - name: hf-transformers-container
+          image: wellflat/hf-transformers:latest
+          ports:
+            - containerPort: 8000
+          resources:
+            limits:
+              nvidia.com/gpu: 1
+            requests:
+              nvidia.com/gpu: 1
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            periodSeconds: 30
+          startupProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 60
+          volumeMounts:
+            - name: llm-bench-model
+              mountPath: /root/.cache/huggingface/hub
+          env:
+            - name: NVIDIA_VISIBLE_DEVICES
+              value: all
+            - name: NVIDIA_DRIVER_CAPABILITIES
+              value: all
+            - name: MODEL_ID
+              value: meta-llama/Llama-3.1-8B
+            - name: DTYPE_STR
+              value: FP16
+            - name: DEVICE_MAP
+              value: cuda:0
+            - name: BATCH_SIZE
+              value: "1"
+            # kubectl generate secret hf-token-secret --from-literal=hf_token=<your_hf_token>
+            - name: HF_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: hf-token-secret
+                  key: hf_token
+      volumes:
+        - name: llm-bench-model
+          persistentVolumeClaim:
+            claimName: llm-bench-model-pvc

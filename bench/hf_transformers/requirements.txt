@@ -1,0 +1,9 @@
+transformers
+accelerate
+fastapi
+uvicorn
+pydantic
+sentencepiece
+# prometheus_client
+auto-gptq
+optimum

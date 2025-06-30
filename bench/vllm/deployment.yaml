@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vllm-deployment
+  namespace: default
+  labels:
+    app: vllm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vllm
+  template:
+    metadata:
+      labels:
+        app: vllm
+    spec:
+      containers:
+      - name: vllm
+        image: vllm/vllm-openai:latest
+        ports:
+          - containerPort: 8000
+        resources:
+          limits:
+            nvidia.com/gpu: 1
+          requests:
+            nvidia.com/gpu: 1
+        env:
+        - name: MODEL_ID
+          value: meta-llama/Llama-3.1-8B-Instruct
+          #value: elyza/Llama-3-ELYZA-JP-8B
+        - name: HF_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: hf-token-secret
+              key: hf_token
+        command: ["/bin/sh", "-c"]
+        args:
+           - |
+            vllm serve ${MODEL_ID} \
+            --tokenizer ${MODEL_ID} \
+            --trust-remote-code \
+            --enable-chunked-prefill \
+            --max_num_batched_tokens 1024 \
+            --gpu-memory-utilization 0.8 \
+            --quantization fp8
+        volumeMounts:
+          - name: llm-bench-model
+            mountPath: /root/.cache/huggingface/hub
+          - name: shm
+            mountPath: /dev/shm
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 120
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 120
+          periodSeconds: 30
+        startupProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 90
+      volumes:
+        - name: llm-bench-model
+          persistentVolumeClaim:
+            claimName: llm-bench-model-pvc
+        # vLLM needs to access the host's shared memory for tensor parallel inference.
+        - name: shm
+          emptyDir:
+            medium: Memory
+            sizeLimit: "20Gi"

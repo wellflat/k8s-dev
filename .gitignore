@@ -3,4 +3,6 @@ hello/hello
 *.safetensors
 *.csv
 *.png
-
+__pycache__/
+.env
+hf_transformers/src/
