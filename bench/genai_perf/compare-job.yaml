@@ -1,0 +1,40 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: genai-perf-compare-job
+  labels:
+    app: genai-perf
+spec:
+  template:
+    spec:
+      containers:
+        - name: genai-perf-container
+          image: nvcr.io/nvidia/tritonserver:25.01-py3-sdk
+          resources:
+            limits:
+              nvidia.com/gpu: 1
+            requests:
+              nvidia.com/gpu: 1
+          volumeMounts:
+            - name: llm-bench-model
+              mountPath: /root/.cache/huggingface/hub
+          env:
+            - name: NVIDIA_VISIBLE_DEVICES
+              value: all
+            - name: NVIDIA_DRIVER_CAPABILITIES
+              value: all
+            - name: MODEL_ID
+              value: meta-llama/Llama-3.1-8B-Instruct
+              #value: elyza/Llama-3-ELYZA-JP-8B
+            - name: BASE_DIR
+              value: /root/.cache/huggingface/hub/benchmark_compare
+          command: ["/bin/bash", "-c"]
+          args:
+           - |
+            genai-perf compare \
+            --files ${BASE_DIR}/profile_export_genai_perf_fp16.json ${BASE_DIR}/profile_export_genai_perf_fp8.json \
+      restartPolicy: Never
+      volumes:
+        - name: llm-bench-model
+          persistentVolumeClaim:
+            claimName: llm-bench-model-pvc

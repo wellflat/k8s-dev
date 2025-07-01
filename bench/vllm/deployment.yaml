@@ -44,8 +44,9 @@ spec:
             --trust-remote-code \
             --enable-chunked-prefill \
             --max_num_batched_tokens 1024 \
-            --gpu-memory-utilization 0.8 \
-            --quantization fp8
+            --gpu-memory-utilization 0.9 \
+            --tensor-parallel-size 1
+        #--quantization fp8
         #Your GPU does not have native support for FP8 computation but FP8 quantization is being used. Weight-only FP8 compression will be used leveraging the Marlin kernel. This may degrade performance for compute-heavy workloads.
         securityContext:
           runAsUser: 1001
@@ -59,19 +60,19 @@ spec:
           httpGet:
             path: /health
             port: 8000
-          initialDelaySeconds: 180
+          initialDelaySeconds: 120
           periodSeconds: 30
         readinessProbe:
           httpGet:
             path: /health
             port: 8000
-          initialDelaySeconds: 180
+          initialDelaySeconds: 120
           periodSeconds: 30
         startupProbe:
           httpGet:
             path: /health
             port: 8000
-          initialDelaySeconds: 120
+          initialDelaySeconds: 90
       volumes:
         - name: llm-bench-model
           persistentVolumeClaim:
