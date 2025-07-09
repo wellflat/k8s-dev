@@ -6,3 +6,4 @@ hello/hello
 __pycache__/
 .env
 hf_transformers/src/
+*.gz
