@@ -1,0 +1,29 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: argo-server-ingress
+  namespace: argo # Argo WorkflowsがデプロイされているNamespace
+  annotations:
+    # NGINX Ingress Controllerを使用している場合、以下の設定が役立つことがあります
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+    # 必要に応じて他のアノテーションを追加してください
+    # 例: cert-managerでTLS証明書を自動取得する場合
+    # cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  ingressClassName: nginx # ご利用のIngress Controllerに合わせて変更してください
+  rules:
+  - host: argo.workflows.co.jp # 外部からアクセスするためのホスト名
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: argo-server # Argo ServerのService名
+            port:
+              number: 2746 # Argo ServerのServiceポート
+  # TLSを設定する場合 (推奨)
+  # tls:
+  # - hosts:
+  #   - argo.example.com
+  #   secretName: argo-server-tls # TLS証明書とキーを含むSecret名

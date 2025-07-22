@@ -2,7 +2,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: vllm-deployment
-  namespace: default
+  #namespace: default
+  namespace: argo
   labels:
     app: vllm
 spec:
@@ -76,7 +77,7 @@ spec:
       volumes:
         - name: llm-bench-model
           persistentVolumeClaim:
-            claimName: llm-bench-model-pvc
+            claimName: llm-bench-model-argo-pvc
         # vLLM needs to access the host's shared memory for tensor parallel inference.
         - name: shm
           emptyDir:

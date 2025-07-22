@@ -1,0 +1,3 @@
+# 公式ドキュメント(Helm利用)
+# operatorとtenant用のchartsが個別にある
+https://min.io/docs/minio/kubernetes/upstream/operations/install-deploy-manage/deploy-operator-helm.html?ref=github

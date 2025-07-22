@@ -28,3 +28,32 @@ roleRef:
   kind: Role
   name: argo-workflow-task-results-creator # 上記で作成したRoleの名前
   apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: k8s-resource-manager-role
+  namespace: argo
+rules:
+- apiGroups: ["apps"]
+  resources: ["deployments"]
+  verbs: ["create", "get", "update", "patch", "delete"]
+- apiGroups: [""]
+  resources: ["services"]
+  verbs: ["create", "get", "update", "patch", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: argo-workflow-k8s-resource-binding
+  namespace: argo
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: k8s-resource-manager-role
+subjects:
+- kind: ServiceAccount
+  # This should be the service account your workflows run as. 'default' is the default.
+  name: default
+  namespace: argo
+

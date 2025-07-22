@@ -7,7 +7,6 @@ BASE_URL="http://192.168.49.2:30201/v1"
 client = OpenAI(base_url=BASE_URL, api_key="vllm")
 
 # vLLMサーバー起動時に指定したモデル名
-# run_docker.shで --model elyza/Llama-3-ELYZA-JP-8B と設定されていることを想定
 #MODEL_NAME = "elyza/Llama-3-ELYZA-JP-8B"
 MODEL_NAME = "meta-llama/Llama-3.1-8B-Instruct"
 # Llama-3.1-8Bだと以下のエラーが出る

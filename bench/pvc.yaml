@@ -23,4 +23,5 @@ spec:
     requests:
       storage: 500Gi
   storageClassName: ""
+  reclaimPolicy: Retain
   volumeName: llm-bench-model-pv

@@ -1,0 +1,161 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: inference-perf-
+  labels:
+    workflows.argoproj.io/archive-strategy: "false"
+spec:
+  parallelism: 3
+  serviceAccountName: default
+  arguments:
+    parameters:
+      - name: model-id
+        value: "meta-llama/Llama-3.1-8B-Instruct"
+
+  entrypoint: benchmark-lifecycle
+  templates:
+    - name: benchmark-lifecycle
+      dag:
+        tasks:
+          - name: hf-dataset-loader
+            template: hf-dataset-loader
+          - name: genai-perf-sweep
+            template: genai-perf-profile
+            dependencies: [hf-dataset-loader]
+            arguments:
+              parameters:
+                - name: output_token_mean
+                  value: "{{item.output_token_mean}}"
+                - name: artifact_suffix
+                  value: "{{item.artifact_suffix}}"
+                - name: model-id
+                  value: "{{workflow.parameters.model-id}}"
+            withParam: >
+              [
+                {"output_token_mean": "100", "artifact_suffix": "token100"},
+                {"output_token_mean": "200", "artifact_suffix": "token200"},
+                {"output_token_mean": "400", "artifact_suffix": "token400"}
+              ]
+          - name: collect-artifacts
+            template: collect-artifacts
+            dependencies: [genai-perf-sweep]
+            #arguments:
+            #  artifacts:
+                # Pass the collected artifacts from the previous step.
+                # The name 'all-benchmark-results' must match the input artifact name in the 'collect-artifacts' template.
+            #    - name: all-benchmark-results
+                  # 'benchmark-results' is the name of the output artifact from the 'genai-perf-sweep' task.
+            #      from: "{{tasks.genai-perf-sweep.outputs.artifacts.benchmark-results}}"
+    
+    - name: hf-dataset-loader
+      container:
+        image: wellflat/hf-dataloader:latest
+        volumeMounts:
+          - name: llm-bench-model
+            mountPath: /root/.cache/huggingface/hub
+        env:
+          - name: HF_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: hf-token-secret
+                key: hf_token
+          - name: DATASET_ID
+            value: "Open-Orca/OpenOrca"
+        args: # huggingface-cli の引数
+          - "download"
+          - "--repo-type"
+          - "dataset"
+          - "$(DATASET_ID)"
+      volumes:
+        - name: llm-bench-model
+          persistentVolumeClaim:
+            claimName: llm-bench-model-argo-pvc
+    
+    - name: genai-perf-profile
+      inputs:
+        parameters:
+          - name: output_token_mean
+          - name: artifact_suffix
+          - name: model-id
+      container:
+        image: nvcr.io/nvidia/tritonserver:25.01-py3-sdk
+        resources:
+          limits:
+            nvidia.com/gpu: 1
+          requests:
+            nvidia.com/gpu: 1
+        volumeMounts:
+          - name: llm-bench-model
+            mountPath: /root/.cache/huggingface/hub
+        env:
+          - name: NVIDIA_VISIBLE_DEVICES
+            value: all
+          - name: NVIDIA_DRIVER_CAPABILITIES
+            value: all
+          - name: MODEL_ID
+            value: "{{inputs.parameters.model-id}}"
+          - name: ARTIFACT_BASE_DIR
+            value: /root/.cache/huggingface/hub/benchmark_results/genai-perf
+        command: ["/bin/bash", "-c"]
+        args:
+          - |
+           genai-perf profile -m ${MODEL_ID} \
+           --service-kind openai \
+           --endpoint-type chat \
+           --synthetic-input-tokens-mean 150 \
+           --synthetic-input-tokens-stddev 30 \
+           --output-tokens-mean {{inputs.parameters.output_token_mean}} \
+           --output-tokens-stddev 30 \
+           --num-prompts 200 \
+           --concurrency 1 \
+           --random-seed 42 \
+           --streaming \
+           --request-count 200 \
+           --warmup-request-count 10 \
+           --url http://vllm-service:80 \
+           --artifact-dir /root/.cache/huggingface/hub/benchmark_results/genai-perf/{{inputs.parameters.model-id}}/vllm-streaming-{{inputs.parameters.artifact_suffix}} \
+           --generate-plots
+      outputs:
+        artifacts:
+          # Artifacts (like reports and plots) from this benchmark run.
+          - name: benchmark-results
+            # This path MUST match the --artifact-dir used in the genai-perf command above.
+            path: /root/.cache/huggingface/hub/benchmark_results/genai-perf/{{inputs.parameters.model-id}}/vllm-streaming-{{inputs.parameters.artifact_suffix}}
+            archive:
+              none: { }
+      volumes:
+        - name: llm-bench-model
+          persistentVolumeClaim:
+            claimName: llm-bench-model-argo-pvc
+
+    - name: collect-artifacts
+      #inputs:
+      #  artifacts:
+          # This will be a collection of all artifacts generated by the parallel genai-perf-sweep steps.
+      #    - name: all-benchmark-results
+      #      path: /tmp/results # The artifacts will be placed in this directory
+      container:
+        image: wellflat/hf-dataloader:latest
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            echo "--- Collected benchmark artifacts are available ---"
+            ls -R /root/.cache/huggingface/hub/benchmark_results/genai-perf
+            echo "--- End of artifact list ---"
+            # You can add commands here to upload the results to a repository.
+            # e.g., huggingface-cli upload my-benchmark-results-repo /tmp/results --repo-type dataset
+        volumeMounts:
+          - name: llm-bench-model
+            mountPath: /root/.cache/huggingface/hub
+        env:
+          - name: HF_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: hf-token-secret
+                key: hf_token
+      volumes:
+        # This volume mount is kept from the original template in case you need to
+        # interact with other cached models within this step.
+        - name: llm-bench-model
+          persistentVolumeClaim:
+            claimName: llm-bench-model-argo-pvc
