@@ -55,7 +55,7 @@ spec:
               value: cuda:0
             - name: BATCH_SIZE
               value: "1"
-            # kubectl generate secret hf-token-secret --from-literal=hf_token=<your_hf_token>
+            # kubectl create secret generic hf-token-secret --from-literal=hf_token=<your_hf_token>
             - name: HF_TOKEN
               valueFrom:
                 secretKeyRef:

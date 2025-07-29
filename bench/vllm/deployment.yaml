@@ -41,12 +41,13 @@ spec:
         args:
            - |
             vllm serve ${MODEL_ID} \
-            --tokenizer ${MODEL_ID} \
+            --dtype=auto \
             --trust-remote-code \
             --enable-chunked-prefill \
-            --max_num_batched_tokens 1024 \
-            --gpu-memory-utilization 0.9 \
-            --tensor-parallel-size 1
+            --max-model-len=8192 \
+            --max-num-batched-tokens=1024 \
+            --gpu-memory-utilization=0.9 \
+            --tensor-parallel-size=1
         #--quantization fp8
         #Your GPU does not have native support for FP8 computation but FP8 quantization is being used. Weight-only FP8 compression will be used leveraging the Marlin kernel. This may degrade performance for compute-heavy workloads.
         securityContext:

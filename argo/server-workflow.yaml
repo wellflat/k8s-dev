@@ -1,0 +1,57 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  name: deploy-vllm-server
+  namespace: argo
+spec:
+  entrypoint: deploy-vllm-server
+
+  templates:
+    - name: deploy-vllm-server
+      steps:
+        - - name: create-or-update-deployment
+            template: create-or-update-deployment-template
+            arguments:
+              parameters:
+                - name: app-name
+                  value: vllm
+                - name: image
+                  value: wellflat/vllm-server
+                - name: replicas
+                  value: "3"
+
+    - name: create-or-update-deployment-template
+      inputs:
+        parameters:
+          - name: app-name
+          - name: image
+          - name: replicas
+      container:
+        image: bitnami/kubectl:latest
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            cat <<EOF | kubectl apply -f -
+            apiVersion: apps/v1
+            kind: Deployment
+            metadata:
+              name: {{inputs.parameters.app-name}}
+              labels:
+                app: {{inputs.parameters.app-name}}
+            spec:
+              replicas: {{inputs.parameters.replicas}}
+              selector:
+                matchLabels:
+                  app: {{inputs.parameters.app-name}}
+              template:
+                metadata:
+                  labels:
+                    app: {{inputs.parameters.app-name}}
+                spec:
+                  containers:
+                    - name: {{inputs.parameters.app-name}}
+                      image: {{inputs.parameters.image}}
+                      ports:
+                        - containerPort: 80
+            EOF
+            echo "Deployment {{inputs.parameters.app-name}} created/updated successfully!"
