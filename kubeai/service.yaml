@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: kubeai-vllm-service
+  namespace: kubeai
+  labels:
+    app: vllm
+spec:
+  type: NodePort
+  selector:
+    app: vllm
+  ports:
+    - protocol: TCP
+      port: 80 # Kubernetes サービスが公開するポート
+      targetPort: 8000 # Pod のコンテナポート
+      nodePort: 30080 # NodePort のポート番号

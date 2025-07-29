@@ -1,0 +1,24 @@
+apiVersion: kubeai.org/v1
+kind: Model
+metadata:
+  name: llama-3-elyza-jp-8b
+  namespace: kubeai
+spec:
+  features: [TextGeneration]
+  url: hf://elyza/Llama-3-ELYZA-JP-8B
+  engine: VLLM
+  args:
+    - --max-model-len=8192
+    - --trust-remote-code
+    - --enable-chunked-prefill
+    - --max_num_batched_tokens=1024
+    - --gpu-memory-utilization=0.9
+    - --tensor-parallel-size=1
+    - --disable-log-requests
+  envFrom:
+    - secretRef:
+        name: kubeai-huggingface
+  scaleDownDelaySeconds: 300
+  targetRequests: 10
+  minReplicas: 1
+  resourceProfile: nvidia-gpu-a100-80gb:1
