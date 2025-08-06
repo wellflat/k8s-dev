@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
       - name: vllm
-        image: wellflat/vllm-server
+        image: wellflat/vllm-server:v0.10.0
         ports:
           - containerPort: 8000
         resources:
@@ -28,8 +28,8 @@ spec:
             nvidia.com/gpu: 1
         env:
         - name: MODEL_ID
-          value: meta-llama/Llama-3.1-8B-Instruct
-          #value: elyza/Llama-3-ELYZA-JP-8B
+          value: elyza/Llama-3-ELYZA-JP-8B
+          #value: openai/gpt-oss-20b
         - name: HF_TOKEN
           valueFrom:
             secretKeyRef:

@@ -2,31 +2,30 @@ from openai import OpenAI
 
 # OpenAIクライアントを初期化
 # vLLMサーバーのURLをbase_urlに指定します。
-# vLLMは認証を必要としないため、api_keyはダミーの文字列で問題ありません。
+# vLLMは認証を必要としないため、api_keyはダミーの文字列で問題ありません
 BASE_URL="http://192.168.49.2:30201/v1"
 client = OpenAI(base_url=BASE_URL, api_key="vllm")
 
 # vLLMサーバー起動時に指定したモデル名
-#MODEL_NAME = "elyza/Llama-3-ELYZA-JP-8B"
-MODEL_NAME = "meta-llama/Llama-3.1-8B-Instruct"
+MODEL_NAME = "elyza/Llama-3-ELYZA-JP-8B"
+#MODEL_NAME = "meta-llama/Llama-3.1-8B-Instruct"
 # Llama-3.1-8Bだと以下のエラーが出る
 #'As of transformers v4.44, default chat template is no longer allowed, so you must provide a chat template if the tokenizer does not define one. None
 
-def request_chat_completion_non_streaming():
+def request_chat_completion_non_streaming(prompts: str):
     """
-    Chat Completions APIを非ストリーミングモードで呼び出すサンプル。
-    レスポンス全体を一度に受け取ります。
+    Chat Completions APIを非ストリーミングモードで呼び出すサンプル
+    レスポンス全体を一度に受け取ります
     """
     print("--- Chat Completions 非ストリーミングリクエスト ---")
     
     try:
-        content = "hello"
         chat_completion = client.chat.completions.create(
             model=MODEL_NAME,
             messages=[
-                {"role": "user", "content": content}
+                {"role": "user", "content": prompts}
             ],
-            max_tokens=50,
+            max_tokens=500,
             temperature=0.7,
             stream=False
         )
@@ -41,19 +40,18 @@ def request_chat_completion_non_streaming():
     except Exception as e:
         print(f"リクエスト中にエラーが発生しました: {e}")
 
-def request_chat_completion_streaming():
+def request_chat_completion_streaming(prompts: str):
     """
-    Chat Completions APIをストリーミングモードで呼び出すサンプル。
-    生成されたトークンを逐次受け取ります。
+    Chat Completions APIをストリーミングモードで呼び出すサンプル
+    生成されたトークンを逐次受け取ります
     """
     print("\n--- Chat Completions ストリーミングリクエスト ---")
     
     try:
-        content = "hello"
         stream = client.chat.completions.create(
             model=MODEL_NAME,
             messages=[
-                {"role": "user", "content": content }
+                {"role": "user", "content": prompts }
             ],
             max_tokens=500,
             temperature=0.8,
@@ -75,5 +73,6 @@ def request_chat_completion_streaming():
 
 
 if __name__ == "__main__":
-    request_chat_completion_non_streaming()
-    request_chat_completion_streaming()
+    prompts = "仕事の熱意を取り戻すためのアイデアを5つ挙げてください"
+    request_chat_completion_non_streaming(prompts)
+    request_chat_completion_streaming(prompts)

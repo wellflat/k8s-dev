@@ -1,4 +1,4 @@
-FROM vllm/vllm-openai:latest
+FROM vllm/vllm-openai:gptoss
 
 RUN groupadd -g 1001 vllm_user && \
     useradd -m -s /bin/bash -u 1001 -g 1001 vllm_user
