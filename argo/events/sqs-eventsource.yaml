@@ -1,0 +1,19 @@
+apiVersion: argoproj.io/v1alpha1
+kind: EventSource
+metadata:
+  name: aws-sqs-source
+  namespace: argo
+spec:
+  eventBusName: default
+  sqs:
+    aws-sqs-queue-events: # イベントソースの名前 (Sensorから参照)
+      accessKey:
+        name: aws-sqs-credentials
+        key: accesskey
+      secretKey:
+        name: aws-sqs-credentials
+        key: secretkey
+      region: ap-northeast-1
+      queue: benchmark.fifo
+      waitTimeSeconds: 20
+      jsonBody: true # SQSメッセージのボディがJSONの場合に設定

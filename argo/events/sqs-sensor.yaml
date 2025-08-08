@@ -1,0 +1,46 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Sensor
+metadata:
+  name: aws-sqs-sensor
+  namespace: argo
+spec:
+  template:
+    serviceAccountName: operate-workflow-sa
+  eventBusName: default
+  dependencies:
+    - name: aws-sqs-dependency
+      eventSourceName: aws-sqs-source
+      eventName: aws-sqs-queue-events
+  triggers:
+    - template:
+        name: aws-sqs-workflow-trigger
+        k8s:
+          operation: create
+          source:
+            resource:
+              apiVersion: argoproj.io/v1alpha1
+              kind: Workflow
+              metadata:
+                generateName: aws-sqs-
+              spec:
+                entrypoint: hello-world
+                arguments:
+                  parameters:
+                  - name: message
+                    # the value will get overridden by event payload from test-dep
+                    value: hello world
+                templates:
+                - name: hello-world
+                  inputs:
+                    parameters:
+                    - name: message
+                  container:
+                    image: busybox
+                    command: ["sh", "-c"]
+                    #args: ["{{inputs.parameters.message}}"]
+                    args: ["echo 'Received SQS message body:' && echo {{inputs.parameters.message}}"]
+          parameters:
+            - src:
+                dependencyName: aws-sqs-dependency
+                dataKey: body
+              dest: spec.arguments.parameters.0.value

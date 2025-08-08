@@ -10,7 +10,7 @@ spec:
   arguments:
     parameters:
       - name: model-id
-        value: "meta-llama/Llama-3.1-8B-Instruct"
+        value: "elyza/Llama-3-ELYZA-JP-8B"
 
   entrypoint: benchmark-lifecycle
   templates:
