@@ -7,10 +7,9 @@ BASE_URL="http://192.168.49.2:30201/v1"
 client = OpenAI(base_url=BASE_URL, api_key="vllm")
 
 # vLLMサーバー起動時に指定したモデル名
-MODEL_NAME = "elyza/Llama-3-ELYZA-JP-8B"
+#MODEL_NAME = "elyza/Llama-3-ELYZA-JP-8B"
 #MODEL_NAME = "meta-llama/Llama-3.1-8B-Instruct"
-# Llama-3.1-8Bだと以下のエラーが出る
-#'As of transformers v4.44, default chat template is no longer allowed, so you must provide a chat template if the tokenizer does not define one. None
+MODEL_NAME = "openai/gpt-oss-20b"
 
 def request_chat_completion_non_streaming(prompts: str):
     """

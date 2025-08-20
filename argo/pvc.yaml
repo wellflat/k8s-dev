@@ -5,10 +5,10 @@ metadata:
   namespace: argo
 spec:
   accessModes:
-    - ReadOnlyMany
+    - ReadWriteMany
   resources:
     requests:
-      storage: 500Gi
+      storage: 1Ti
   storageClassName: ""
   volumeName: llm-bench-model-pv
 ---

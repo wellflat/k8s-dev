@@ -1,0 +1,13 @@
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: llm-bench-model-pv
+spec:
+  capacity:
+    storage: 1Ti
+  accessModes:
+    - ReadWriteMany
+  hostPath:
+    path: /minikube-host/.cache/huggingface/hub
+    type: DirectoryOrCreate

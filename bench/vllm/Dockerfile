@@ -1,7 +1,7 @@
 FROM vllm/vllm-openai:gptoss
 
-RUN groupadd -g 1001 vllm_user && \
-    useradd -m -s /bin/bash -u 1001 -g 1001 vllm_user
+RUN groupadd -g 1000 vllm_user && \
+    useradd -m -s /bin/bash -u 1000 -g 1000 vllm_user
 WORKDIR /workspace
-RUN chown -R 1001:1001 /workspace
+RUN chown -R 1000:1000 /workspace
 USER vllm_user

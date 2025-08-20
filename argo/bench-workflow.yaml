@@ -10,7 +10,8 @@ spec:
   arguments:
     parameters:
       - name: model-id
-        value: "elyza/Llama-3-ELYZA-JP-8B"
+        #value: "elyza/Llama-3-ELYZA-JP-8B"
+        value: openai/gpt-oss-20b
 
   entrypoint: benchmark-lifecycle
   templates:

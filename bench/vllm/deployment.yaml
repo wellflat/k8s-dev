@@ -18,7 +18,9 @@ spec:
     spec:
       containers:
       - name: vllm
-        image: wellflat/vllm-server:v0.10.0
+        #image: wellflat/vllm-server:v0.10.0
+        #image: wellflat/vllm-server:gptoss
+        image: vllm/vllm-openai:gptoss
         ports:
           - containerPort: 8000
         resources:
@@ -27,16 +29,19 @@ spec:
           requests:
             nvidia.com/gpu: 1
         env:
+        - name: VLLM_ATTENTION_BACKEND
+          value: TRITON_ATTN_VLLM_V1
         - name: MODEL_ID
-          value: elyza/Llama-3-ELYZA-JP-8B
-          #value: openai/gpt-oss-20b
+          value: openai/gpt-oss-20b
+          #value: elyza/Llama-3-ELYZA-JP-8B
         - name: HF_TOKEN
           valueFrom:
             secretKeyRef:
               name: hf-token-secret
               key: hf_token
         - name: HF_HOME
-          value: /workspace
+          #value: /workspace
+          value: /root/.cache/huggingface
         command: ["/bin/sh", "-c"]
         args:
            - |
@@ -50,12 +55,12 @@ spec:
             --tensor-parallel-size=1
         #--quantization fp8
         #Your GPU does not have native support for FP8 computation but FP8 quantization is being used. Weight-only FP8 compression will be used leveraging the Marlin kernel. This may degrade performance for compute-heavy workloads.
-        securityContext:
-          runAsUser: 1001
+        #securityContext:
+        #  runAsUser: 1000
         volumeMounts:
           - name: llm-bench-model
-            #mountPath: /root/.cache/huggingface/hub
-            mountPath: /workspace/hub
+            mountPath: /root/.cache/huggingface/hub
+            #mountPath: /workspace/hub
           - name: shm
             mountPath: /dev/shm
         livenessProbe:
@@ -74,7 +79,7 @@ spec:
           httpGet:
             path: /health
             port: 8000
-          initialDelaySeconds: 90
+          initialDelaySeconds: 300
       volumes:
         - name: llm-bench-model
           persistentVolumeClaim:

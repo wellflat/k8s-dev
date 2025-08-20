@@ -12,9 +12,9 @@ spec:
           image: nvcr.io/nvidia/tritonserver:25.01-py3-sdk
           resources:
             limits:
-              nvidia.com/gpu: 1
+              nvidia.com/gpu: 8
             requests:
-              nvidia.com/gpu: 1
+              nvidia.com/gpu: 8
           volumeMounts:
             - name: llm-bench-model
               mountPath: /root/.cache/huggingface/hub
@@ -49,5 +49,5 @@ spec:
       volumes:
         - name: llm-bench-model
           persistentVolumeClaim:
-            claimName: llm-bench-model-pvc
+            claimName: llm-bench-model-argo-pvc
 
