@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
-  generateName: inference-perf-
+  generateName: workflow-
   labels:
     workflows.argoproj.io/archive-strategy: "false"
 spec:
@@ -114,14 +114,14 @@ spec:
            --request-count 200 \
            --warmup-request-count 10 \
            --url http://vllm-service:80 \
-           --artifact-dir /root/.cache/huggingface/hub/benchmark_results/genai-perf/{{inputs.parameters.model-id}}/vllm-streaming-{{inputs.parameters.artifact_suffix}} \
+           --artifact-dir ${ARTIFACT_BASE_DIR}/{{workflow.uid}}/{{inputs.parameters.model-id}}/{{inputs.parameters.artifact_suffix}} \
            --generate-plots
       outputs:
         artifacts:
           # Artifacts (like reports and plots) from this benchmark run.
           - name: benchmark-results
             # This path MUST match the --artifact-dir used in the genai-perf command above.
-            path: /root/.cache/huggingface/hub/benchmark_results/genai-perf/{{inputs.parameters.model-id}}/vllm-streaming-{{inputs.parameters.artifact_suffix}}
+            path: ${ARTIFACT_BASE_DIR}/{{workflow.uid}}/{{inputs.parameters.model-id}}/{{inputs.parameters.artifact_suffix}}
             archive:
               none: { }
       volumes:
