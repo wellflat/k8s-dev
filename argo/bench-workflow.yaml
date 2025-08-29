@@ -60,6 +60,8 @@ spec:
               secretKeyRef:
                 name: hf-token-secret
                 key: hf_token
+          - name: HF_HUB_ENABLE_TRANSFER
+            value: "1"
           - name: DATASET_ID
             value: "Open-Orca/OpenOrca"
         args: # huggingface-cli の引数
@@ -121,7 +123,7 @@ spec:
           # Artifacts (like reports and plots) from this benchmark run.
           - name: benchmark-results
             # This path MUST match the --artifact-dir used in the genai-perf command above.
-            path: ${ARTIFACT_BASE_DIR}/{{workflow.uid}}/{{inputs.parameters.model-id}}/{{inputs.parameters.artifact_suffix}}
+            path: /root/.cache/huggingface/hub/benchmark_results/genai-perf/{{workflow.uid}}/{{inputs.parameters.model-id}}/{{inputs.parameters.artifact_suffix}}
             archive:
               none: { }
       volumes:

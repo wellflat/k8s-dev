@@ -1,0 +1,39 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: llm-sft-job
+  labels:
+    app: llm-sft
+spec:
+  template:
+    spec:
+      containers:
+        - name: llm-sft-container
+          image: wellflat/llm-trl-train:latest
+          resources:
+            limits:
+              nvidia.com/gpu: 1
+            requests:
+              nvidia.com/gpu: 1
+          volumeMounts:
+            - name: llm-bench-model
+              mountPath: /root/.cache/huggingface/hub
+          env:
+            - name: NVIDIA_VISIBLE_DEVICES
+              value: all
+            - name: NVIDIA_DRIVER_CAPABILITIES
+              value: all
+            - name: MODEL_ID
+              value: openai/gpt-oss-20b
+              #value: elyza/Llama-3-ELYZA-JP-8B
+            - name: HF_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: hf-token-secret
+                  key: hf_token
+          command: ["python", "train.py"]
+      restartPolicy: Never
+      volumes:
+        - name: llm-bench-model
+          persistentVolumeClaim:
+            claimName: llm-bench-model-argo-pvc
