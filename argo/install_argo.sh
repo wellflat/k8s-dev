@@ -6,7 +6,7 @@
 ARGO_OS="linux"
 
 # Download the binary
-curl -sLO "https://github.com/argoproj/argo-workflows/releases/download/v3.6.10/argo-$ARGO_OS-amd64.gz"
+curl -sLO "https://github.com/argoproj/argo-workflows/releases/download/v3.7.1/argo-$ARGO_OS-amd64.gz"
 
 # Unzip
 gunzip "argo-$ARGO_OS-amd64.gz"
@@ -15,11 +15,7 @@ gunzip "argo-$ARGO_OS-amd64.gz"
 chmod +x "argo-$ARGO_OS-amd64"
 
 # Move binary to path
-mv "./argo-$ARGO_OS-amd64" $HOME/.local/bin/argo
+mv "./argo-$ARGO_OS-amd64" /usr/local/bin/argo
 
 # Test installation
 argo version
-
-# Controller and Server
-NS=bench
-kubectl apply -n $NS -f https://github.com/argoproj/argo-workflows/releases/download/v3.6.10/install.yaml

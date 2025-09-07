@@ -1,0 +1,14 @@
+workflow:
+  serviceAccount:
+    create: true
+    name: "workflow-sa"
+  rbac:
+    create: true
+server:
+  enabled: true
+  serviceType: ClusterIP # Web UIにアクセスするためのService
+controller:
+  workflowNamespaces:
+    - "default"
+    
+#singleNamespace: false # クラスター全体でワークフローを実行可能にする
