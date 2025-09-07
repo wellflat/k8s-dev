@@ -2,8 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: vllm-deployment
-  #namespace: default
-  namespace: argo
+  namespace: default
   labels:
     app: vllm
 spec:
@@ -58,7 +57,7 @@ spec:
         #securityContext:
         #  runAsUser: 1000
         volumeMounts:
-          - name: llm-bench-model
+          - name: hf-data
             mountPath: /root/.cache/huggingface/hub
             #mountPath: /workspace/hub
           - name: shm
@@ -81,9 +80,9 @@ spec:
             port: 8000
           initialDelaySeconds: 300
       volumes:
-        - name: llm-bench-model
+        - name: hf-data
           persistentVolumeClaim:
-            claimName: llm-bench-model-argo-pvc
+            claimName: hf-data-pvc
         # vLLM needs to access the host's shared memory for tensor parallel inference.
         - name: shm
           emptyDir:

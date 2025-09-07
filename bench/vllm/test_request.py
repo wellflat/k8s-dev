@@ -3,7 +3,7 @@ from openai import OpenAI
 # OpenAIクライアントを初期化
 # vLLMサーバーのURLをbase_urlに指定します。
 # vLLMは認証を必要としないため、api_keyはダミーの文字列で問題ありません
-BASE_URL="http://192.168.49.2:30201/v1"
+BASE_URL="http://localhost:30201/v1"
 client = OpenAI(base_url=BASE_URL, api_key="vllm")
 
 # vLLMサーバー起動時に指定したモデル名
