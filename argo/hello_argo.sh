@@ -1,3 +1,3 @@
 #!/bin/sh
 
-argo submit -n argo --watch hello-world.yaml
+argo submit --watch -n default --serviceaccount=workflow-sa hello-world.yaml

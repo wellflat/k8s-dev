@@ -4,11 +4,12 @@ metadata:
   name: hf-data-pv
 spec:
   capacity:
-    storage: 1Ti
+    storage: 5Ti
   accessModes:
     - ReadWriteMany
   hostPath:
-    path: /home/gmaasadmin/.cache/huggingface/hub
+    #path: /home/gmaasadmin/.cache/huggingface/hub
+    path: /mnt/lustre/cache/huggingface/hub
     type: DirectoryOrCreate
 ---
 apiVersion: v1
@@ -21,7 +22,7 @@ spec:
     - ReadWriteMany
   resources:
     requests:
-      storage: 1Ti
+      storage: 5Ti
   storageClassName: ""
   volumeName: hf-data-pv
 ---

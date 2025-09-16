@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: vllm-deployment
+  name: vllm-server
   namespace: default
   labels:
     app: vllm
