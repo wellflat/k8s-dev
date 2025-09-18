@@ -1,18 +1,8 @@
 apiVersion: argoproj.io/v1alpha1
-kind: Workflow
+kind: WorkflowTemplate
 metadata:
-  generateName: workflow-
-  labels:
-    workflows.argoproj.io/archive-strategy: "false"
+  name: inference-workflow-template
 spec:
-  parallelism: 3
-  serviceAccountName: workflow-sa
-  arguments:
-    parameters:
-      - name: model-id
-        #value: "elyza/Llama-3-ELYZA-JP-8B"
-        value: openai/gpt-oss-20b
-
   entrypoint: benchmark-lifecycle
   templates:
     - name: benchmark-lifecycle
@@ -20,6 +10,10 @@ spec:
         tasks:
           - name: hf-dataset-loader
             template: hf-dataset-loader
+            arguments:
+              parameters:
+                - name: dataset-id
+                  value: "{{workflow.parameters.dataset-id}}"
           - name: genai-perf-sweep
             template: genai-perf-profile
             dependencies: [hf-dataset-loader]
@@ -49,6 +43,9 @@ spec:
             #      from: "{{tasks.genai-perf-sweep.outputs.artifacts.benchmark-results}}"
     
     - name: hf-dataset-loader
+      inputs:
+        parameters:
+          - name: dataset-id
       container:
         image: wellflat/hf-dataloader:latest
         volumeMounts:
@@ -63,7 +60,7 @@ spec:
           - name: HF_HUB_ENABLE_TRANSFER
             value: "1"
           - name: DATASET_ID
-            value: "Open-Orca/OpenOrca"
+            value: "{{inputs.parameters.dataset-id}}"
         args: # huggingface-cli の引数
           - "download"
           - "--repo-type"
@@ -113,7 +110,7 @@ spec:
            --concurrency 1 \
            --random-seed 42 \
            --streaming \
-           --request-count 100 \
+           --request-count 200 \
            --warmup-request-count 10 \
            --url http://vllm-service:80 \
            --artifact-dir ${ARTIFACT_BASE_DIR}/{{workflow.uid}}/{{inputs.parameters.model-id}}/{{inputs.parameters.artifact_suffix}} \

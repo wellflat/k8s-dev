@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: sft-train-
+spec:
+  workflowTemplateRef:
+    name: sft-train-workflow-template
+  
+  serviceAccountName: workflow-sa
+
+  nodeSelector:
+    nvidia.com/gpu.product: "NVIDIA-A100-SXM4-80GB"
+  arguments:
+    parameters:
+      - name: model-id
+        value: "openai/gpt-oss-20b"
+      - name: dataset-id
+        value: "HuggingFaceH4/Multilingual-Thinking"

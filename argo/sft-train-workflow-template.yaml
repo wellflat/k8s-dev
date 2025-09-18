@@ -1,0 +1,54 @@
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: sft-train-workflow-template
+spec:
+  arguments:
+    parameters:
+      - name: model-id
+        value: "openai/gpt-oss-20b" # デフォルトのモデルID
+      - name: dataset-id
+        value: "HuggingFaceH4/Multilingual-Thinking" # デフォルトのデータセットID
+
+  # ワークフローのエントリーポイント指定
+  entrypoint: sft-train-job
+
+  # ワークフロー全体で利用するボリュームを定義
+  volumes:
+    # This volume mount is kept from the original template in case you need to
+    # interact with other cached models within this step.
+    - name: hf-data
+      persistentVolumeClaim:
+        claimName: hf-data-pvc
+
+  templates:
+    - name: sft-train-job
+      inputs:
+        parameters:
+          - name: model-id
+          - name: dataset-id
+      container:
+        image: wellflat/llm-trl-train:latest
+        resources:
+          limits:
+            nvidia.com/gpu: 8
+          requests:
+            nvidia.com/gpu: 8
+        volumeMounts:
+          - name: hf-data
+            mountPath: /root/.cache/huggingface/hub
+        env:
+          - name: NVIDIA_VISIBLE_DEVICES
+            value: all
+          - name: NVIDIA_DRIVER_CAPABILITIES
+            value: all
+          - name: MODEL_ID
+            value: "{{inputs.parameters.model-id}}"
+          - name: DATASET_ID
+            value: "{{inputs.parameters.dataset-id}}"
+          - name: HF_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: hf-token-secret
+                key: hf_token
+        command: ["python", "train.py"]

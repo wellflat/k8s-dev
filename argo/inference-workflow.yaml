@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: workflow-
+  labels:
+    workflows.argoproj.io/archive-strategy: "false"
+spec:
+  workflowTemplateRef:
+    name: inference-workflow-template
+  serviceAccountName: workflow-sa
+  parallelism: 3
+  arguments:
+    parameters:
+      - name: model-id
+        value: openai/gpt-oss-20b
+      - name: dataset-id
+        value: Open-Orca/OpenOrca
+    

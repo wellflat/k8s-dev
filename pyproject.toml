@@ -5,12 +5,14 @@ description = "deplopment on kubernetes workspace"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "accelerate>=1.9.0",
-    "fastapi>=0.115.13",
+    "datasets>=4.1.0",
+    #    "accelerate>=1.9.0",
+    #    "fastapi>=0.115.13",
     "huggingface-hub[cli]>=0.33.0",
     "openai>=1.91.0",
-    "torch>=2.7.1",
-    "torchaudio>=2.7.1",
-    "torchvision>=0.22.1",
-    "transformers>=4.53.3",
+    #    "torch>=2.7.1",
+    #    "torchaudio>=2.7.1",
+    #    "torchvision>=0.22.1",
+    #    "transformers>=4.53.3",
+    "polar>=0.0.127",
 ]

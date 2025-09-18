@@ -26,6 +26,8 @@ spec:
             - name: MODEL_ID
               value: openai/gpt-oss-20b
               #value: elyza/Llama-3-ELYZA-JP-8B
+            - name: DATASET_ID
+              value: HuggingFaceH4/Multilingual-Thinking
             - name: HF_TOKEN
               valueFrom:
                 secretKeyRef:
