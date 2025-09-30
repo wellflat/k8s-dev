@@ -109,7 +109,6 @@ spec:
         args:
           - |
            genai-perf profile -m ${MODEL_ID} \
-           --service-kind openai \
            --endpoint-type chat \
            --synthetic-input-tokens-mean 150 \
            --synthetic-input-tokens-stddev 30 \
@@ -122,8 +121,9 @@ spec:
            --request-count 200 \
            --warmup-request-count 10 \
            --url http://vllm-service:80 \
+           --serrvice-metrics-url http://dcgm-exporter.prometheus.svc.cluster.local:9400/metrics \
            --artifact-dir ${ARTIFACT_BASE_DIR}/{{workflow.uid}}/{{inputs.parameters.model-id}}/{{inputs.parameters.artifact_suffix}} \
-           --generate-plots
+           --verbose
       outputs:
         artifacts:
           # Artifacts (like reports and plots) from this benchmark run.
