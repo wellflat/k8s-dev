@@ -19,17 +19,25 @@ spec:
             dependencies: [hf-dataset-loader]
             arguments:
               parameters:
-                - name: output_token_mean
-                  value: "{{item.output_token_mean}}"
+                - name: concurrency
+                  value: "{{item.concurrency}}"
+                #- name: output_token_mean
+                #  value: "{{item.output_token_mean}}"
                 - name: artifact_suffix
                   value: "{{item.artifact_suffix}}"
                 - name: model-id
                   value: "{{workflow.parameters.model-id}}"
+            #withParam: >
+            #  [
+            #    {"output_token_mean": "100", "artifact_suffix": "token100"},
+            #    {"output_token_mean": "200", "artifact_suffix": "token200"},
+            #    {"output_token_mean": "400", "artifact_suffix": "token400"}
+            #  ]
             withParam: >
               [
-                {"output_token_mean": "100", "artifact_suffix": "token100"},
-                {"output_token_mean": "200", "artifact_suffix": "token200"},
-                {"output_token_mean": "400", "artifact_suffix": "token400"}
+                {"concurrency": "1", "artifact_suffix": "c1"},
+                {"concurrency": "2", "artifact_suffix": "c2"},
+                {"concurrency": "4", "artifact_suffix": "c4"}
               ]
           - name: collect-artifacts
             template: collect-artifacts
@@ -74,7 +82,8 @@ spec:
     - name: genai-perf-profile
       inputs:
         parameters:
-          - name: output_token_mean
+          #- name: output_token_mean
+          - name: concurrency
           - name: artifact_suffix
           - name: model-id
       container:
@@ -104,10 +113,10 @@ spec:
            --endpoint-type chat \
            --synthetic-input-tokens-mean 150 \
            --synthetic-input-tokens-stddev 30 \
-           --output-tokens-mean {{inputs.parameters.output_token_mean}} \
+           --output-tokens-mean 200 \
            --output-tokens-stddev 30 \
            --num-prompts 200 \
-           --concurrency 1 \
+           --concurrency {{inputs.parameters.concurrency}} \
            --random-seed 42 \
            --streaming \
            --request-count 200 \

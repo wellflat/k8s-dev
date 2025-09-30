@@ -16,7 +16,7 @@ spec:
             requests:
               nvidia.com/gpu: 1
           volumeMounts:
-            - name: llm-bench-model
+            - name: hf-data
               mountPath: /root/.cache/huggingface/hub
           env:
             - name: NVIDIA_VISIBLE_DEVICES
@@ -25,7 +25,6 @@ spec:
               value: all
             - name: MODEL_ID
               value: openai/gpt-oss-20b
-              #value: elyza/Llama-3-ELYZA-JP-8B
             - name: DATASET_ID
               value: HuggingFaceH4/Multilingual-Thinking
             - name: HF_TOKEN
@@ -36,6 +35,8 @@ spec:
           command: ["python", "train.py"]
       restartPolicy: Never
       volumes:
-        - name: llm-bench-model
+        - name: hf-data
           persistentVolumeClaim:
-            claimName: llm-bench-model-argo-pvc
+            claimName: hf-data-pvc
+      nodeSelector:
+        nvidia.com/gpu.product: "NVIDIA-A100-SXM4-80GB"

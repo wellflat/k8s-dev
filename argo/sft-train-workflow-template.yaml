@@ -10,23 +10,64 @@ spec:
       - name: dataset-id
         value: "HuggingFaceH4/Multilingual-Thinking" # デフォルトのデータセットID
 
-  # ワークフローのエントリーポイント指定
-  entrypoint: sft-train-job
+  entrypoint: train-lifecycle
 
-  # ワークフロー全体で利用するボリュームを定義
   volumes:
-    # This volume mount is kept from the original template in case you need to
-    # interact with other cached models within this step.
     - name: hf-data
       persistentVolumeClaim:
         claimName: hf-data-pvc
 
   templates:
+    - name: train-lifecycle
+      dag:
+        tasks:
+          - name: hf-dataset-loader
+            template: hf-dataset-loader
+            arguments:
+              parameters:
+                - name: dataset-id
+                  value: "{{workflow.parameters.dataset-id}}"
+          - name: sft-train-job
+            template: sft-train-job
+            dependencies: [hf-dataset-loader]
+            arguments:
+              parameters:
+                - name: model-id
+                  value: "{{workflow.parameters.model-id}}"
+    
+    - name: hf-dataset-loader
+      inputs:
+        parameters:
+          - name: dataset-id
+      container:
+        image: wellflat/hf-dataloader:latest
+        volumeMounts:
+          - name: hf-data
+            mountPath: /root/.cache/huggingface/hub
+        env:
+          - name: HF_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: hf-token-secret
+                key: hf_token
+          - name: HF_HUB_ENABLE_TRANSFER
+            value: "1"
+          - name: DATASET_ID
+            value: "{{inputs.parameters.dataset-id}}"
+        args: # huggingface-cli の引数
+          - "download"
+          - "--repo-type"
+          - "dataset"
+          - "$(DATASET_ID)"
+      volumes:
+        - name: hf-data
+          persistentVolumeClaim:
+            claimName: hf-data-pvc
+    
     - name: sft-train-job
       inputs:
         parameters:
           - name: model-id
-          - name: dataset-id
       container:
         image: wellflat/llm-trl-train:latest
         resources:
@@ -44,8 +85,6 @@ spec:
             value: all
           - name: MODEL_ID
             value: "{{inputs.parameters.model-id}}"
-          - name: DATASET_ID
-            value: "{{inputs.parameters.dataset-id}}"
           - name: HF_TOKEN
             valueFrom:
               secretKeyRef:

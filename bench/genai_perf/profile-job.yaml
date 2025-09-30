@@ -9,14 +9,14 @@ spec:
     spec:
       containers:
         - name: genai-perf-container
-          image: nvcr.io/nvidia/tritonserver:25.01-py3-sdk
+          image: nvcr.io/nvidia/tritonserver:25.07-py3-sdk
           resources:
             limits:
-              nvidia.com/gpu: 8
+              nvidia.com/gpu: 1
             requests:
-              nvidia.com/gpu: 8
+              nvidia.com/gpu: 1
           volumeMounts:
-            - name: llm-bench-model
+            - name: hf-data
               mountPath: /root/.cache/huggingface/hub
           env:
             - name: NVIDIA_VISIBLE_DEVICES
@@ -24,30 +24,34 @@ spec:
             - name: NVIDIA_DRIVER_CAPABILITIES
               value: all
             - name: MODEL_ID
-              value: meta-llama/Llama-3.1-8B-Instruct
-              #value: elyza/Llama-3-ELYZA-JP-8B
+              value: openai/gpt-oss-20b
+            - name: ARTIFACT_BASE_DIR
+              value: /root/.cache/huggingface/hub/benchmark_results/genai-perf
           command: ["/bin/bash", "-c"]
           args:
            - |
             genai-perf profile -m ${MODEL_ID} \
-            --service-kind openai \
             --endpoint-type chat \
-            --synthetic-input-tokens-mean 150 \
+            --synthetic-input-tokens-mean 200 \
             --synthetic-input-tokens-stddev 30 \
             --output-tokens-mean 300 \
             --output-tokens-stddev 30 \
-            --num-prompts 300  \
+            --num-prompts 200  \
             --concurrency 1 \
             --random-seed 42 \
             --streaming \
             --request-count 200 \
             --warmup-request-count 10 \
             --url http://vllm-service:80 \
-            --artifact-dir /root/.cache/huggingface/hub/benchmark_results/genai-perf/${MODEL_ID}/vllm-streaming \
-            --generate-plots
+            --server-metrics-url http://dcgm-exporter.prometheus.svc.cluster.local:9400/metrics \
+            --artifact-dir ${ARTIFACT_BASE_DIR}/${MODEL_ID}/ \
+            --verbose
       restartPolicy: Never
       volumes:
-        - name: llm-bench-model
+        # This volume mount is kept from the original template in case you need to
+        # interact with other cached models within this step.
+        - name: hf-data
           persistentVolumeClaim:
-            claimName: llm-bench-model-argo-pvc
-
+            claimName: hf-data-pvc
+      nodeSelector:
+        nvidia.com/gpu.product: "NVIDIA-A100-SXM4-80GB"
