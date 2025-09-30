@@ -18,7 +18,7 @@ def parse_arguments() -> argparse.Namespace:
     parser.add_argument("--subset", type=str, default="", help="dataset subset name")
     parser.add_argument("--split", type=str, default="train", help="dataset split name (default: train)")
     parser.add_argument("--output_dir", type=str, default=None, help="dataset cache directory")
-    parser.add_argument("--columns", nargs="+", required=True, help="column names to include in the output text")
+    parser.add_argument("--column", type=str, required=True, help="column name to include in the output text")
     parser.add_argument("--output_file", type=str, required=True, help="path to the output JSONL file")
     return parser.parse_args()
 
@@ -46,23 +46,23 @@ def download_huggingface_dataset(
     except Exception as e:
         logging.error(f"dataset download error: {e}")
 
-def convert_jsonl(dataset: Dataset, columns: list[str], output_file: str):
+def convert_jsonl(dataset: Dataset, column: str, output_file: str):
     """
     Converts a Hugging Face Dataset to a JSONL file.
 
     Args:
         dataset: The Hugging Face Dataset object.
-        columns: A list of column names to concatenate into the 'text' field.
+        column: The column name to use for the 'text' field.
         output_file: The path to save the output JSONL file.
     """
     logging.info(f"Converting dataset to JSONL format, saving to '{output_file}'...")
     try:
         with open(output_file, "w", encoding="utf-8") as f:
             for item in dataset:
-                # 指定されたカラムの値を連結
-                text_content = " ".join(str(item[col]) for col in columns if col in item and item[col] is not None)
-                json_line = json.dumps({"text": text_content}, ensure_ascii=False)
-                f.write(json_line + "\n")
+                if column in item and item[column] is not None:
+                    text_content = str(item[column])
+                    json_line = json.dumps({"text": text_content}, ensure_ascii=False)
+                    f.write(json_line + "\n")
         logging.info(f"Successfully converted and saved to '{os.path.abspath(output_file)}'")
     except Exception as e:
         logging.error(f"Failed to convert dataset to JSONL: {e}")
@@ -72,7 +72,7 @@ def main():
     args = parse_arguments()
     dataset = download_huggingface_dataset(args.dataset, args.subset, args.split, args.output_dir)
     if dataset:
-        convert_jsonl(dataset, args.columns, args.output_file)
+        convert_jsonl(dataset, args.column, args.output_file)
 
 if __name__ == "__main__":
     main()
