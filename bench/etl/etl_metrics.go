@@ -73,7 +73,7 @@ type InputConfig struct {
 
 // ProfileExport は、JSONファイル全体の構造を表します。
 type ProfileExport struct {
-	RequestThroughput               Metric `json:"request_throughput" dynamodbav:"request_throughput"`
+	RequestThroughput               Metric        `json:"request_throughput" dynamodbav:"request_throughput"`
 	RequestLatency                  LatencyMetric `json:"request_latency" dynamodbav:"request_latency"`
 	RequestCount                    Metric        `json:"request_count" dynamodbav:"request_count"`
 	TimeToFirstToken                LatencyMetric `json:"time_to_first_token" dynamodbav:"time_to_first_token"`
@@ -87,21 +87,22 @@ type ProfileExport struct {
 
 type Node struct {
 	GPUName string `json:"gpu_name" dynamodbav:"gpu_name"`
-	GPUCount int `json:"gpu_count" dynamodbav:"gpu_count"`
-	NodeCount int `json:"node_count" dynamodbav:"node_count"`
+	GPUCount int   `json:"gpu_count" dynamodbav:"gpu_count"`
+	NodeCount int  `json:"node_count" dynamodbav:"node_count"`
 }
 
 // BenchmarkItem は、DynamoDBの'benchmark'テーブルに格納するアイテムの構造体です。
 type BenchmarkItem struct {
-	WorkflowID string `dynamodbav:"workflow_id"` // Partition Key
-	ModelName string `dynamodbav:"model_name"`
-	DatasetName string `dynamodbav:"dataset_name"`
-	NodeInfo Node `dynamodbav:"node_info"`
-	DateTime string `dynamodbav:"datetime"`
-	Timestamp int64 `dynamodbav:"timestamp"` // Sort Key
-	BenchmarkType string `dynamodbav:"benchmark_type"`
+	WorkflowID string        `dynamodbav:"workflow_id"` // Partition Key
+	ModelName string         `dynamodbav:"model_name"`
+	DatasetName string       `dynamodbav:"dataset_name"`
+	Framework string         `dynamodbav:"framework"`
+	NodeInfo Node            `dynamodbav:"node_info"`
+	DateTime string          `dynamodbav:"datetime"`
+	Timestamp int64          `dynamodbav:"timestamp"` // Sort Key
+	BenchmarkType string     `dynamodbav:"benchmark_type"`
 	// ProfileExport の全データをネストされたマップとして格納します
-	Profile ProfileExport `dynamodbav:"profile"`
+	Profile ProfileExport    `dynamodbav:"profile"`
 	Telemetry TelemetryStats `dynamodbav:"gpu_telemetry"`
 }
 
@@ -228,7 +229,8 @@ func saveBenchmarkToDB(ctx context.Context, dynamodbClient *dynamodb.Client, tab
 	benchmarkItem := &BenchmarkItem{
 		WorkflowID:    uuid.NewString(), // UUIDを生成してパーティションキーとして使用
 		ModelName:     inputConfig.ModelNames[0],
-		DatasetName:   "Open-Orca/OpenOrca",
+		DatasetName:   "HuggingFaceH4/OpenR1-Math-220k-default-verified",
+		Framework:     "vLLM",
 		NodeInfo:      *nodeItem,
 		DateTime:      now.In(jst).Format(time.RFC3339), // ISO 8601形式のJSTタイムスタンプ
 		Timestamp:     now.Unix(),                       // Unixタイムスタンプ（秒）
@@ -242,7 +244,7 @@ func saveBenchmarkToDB(ctx context.Context, dynamodbClient *dynamodb.Client, tab
 	if err != nil {
 		return nil, fmt.Errorf("DynamoDBアイテムのマーシャリングに失敗しました: %w", err)
 	}
-
+	
 	// PutItem APIの呼び出し
 	input := &dynamodb.PutItemInput{
 		TableName: aws.String(tableName),
@@ -252,6 +254,5 @@ func saveBenchmarkToDB(ctx context.Context, dynamodbClient *dynamodb.Client, tab
 	if _, err = dynamodbClient.PutItem(ctx, input); err != nil {
 		return nil, fmt.Errorf("DynamoDBへのPutItem呼び出しに失敗しました: %w", err)
 	}
-
 	return benchmarkItem, nil
 }

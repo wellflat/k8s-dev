@@ -19,25 +19,19 @@ spec:
             dependencies: [hf-dataset-loader]
             arguments:
               parameters:
-                - name: concurrency
-                  value: "{{item.concurrency}}"
-                #- name: output_token_mean
-                #  value: "{{item.output_token_mean}}"
-                - name: artifact_suffix
-                  value: "{{item.artifact_suffix}}"
                 - name: model-id
                   value: "{{workflow.parameters.model-id}}"
-            #withParam: >
-            #  [
-            #    {"output_token_mean": "100", "artifact_suffix": "token100"},
-            #    {"output_token_mean": "200", "artifact_suffix": "token200"},
-            #    {"output_token_mean": "400", "artifact_suffix": "token400"}
-            #  ]
+                - name: output_token_mean
+                  value: "{{item.output_token_mean}}"
+                - name: request_count
+                  value: "{{workflow.parameters.request_count}}"
+                - name: artifact_suffix
+                  value: "{{item.artifact_suffix}}"
             withParam: >
               [
-                {"concurrency": "1", "artifact_suffix": "c1"},
-                {"concurrency": "2", "artifact_suffix": "c2"},
-                {"concurrency": "4", "artifact_suffix": "c4"}
+                {"output_token_mean": "100", "artifact_suffix": "token100"},
+                {"output_token_mean": "200", "artifact_suffix": "token200"},
+                {"output_token_mean": "400", "artifact_suffix": "token400"}
               ]
           - name: collect-artifacts
             template: collect-artifacts
@@ -82,12 +76,12 @@ spec:
     - name: genai-perf-profile
       inputs:
         parameters:
-          #- name: output_token_mean
-          - name: concurrency
-          - name: artifact_suffix
           - name: model-id
+          - name: output_token_mean
+          - name: request_count
+          - name: artifact_suffix
       container:
-        image: nvcr.io/nvidia/tritonserver:25.01-py3-sdk
+        image: nvcr.io/nvidia/tritonserver:25.07-py3-sdk
         resources:
           limits:
             nvidia.com/gpu: 1
@@ -112,16 +106,16 @@ spec:
            --endpoint-type chat \
            --synthetic-input-tokens-mean 150 \
            --synthetic-input-tokens-stddev 30 \
-           --output-tokens-mean 200 \
+           --output-tokens-mean {{inputs.parameters.output_token_mean}} \
            --output-tokens-stddev 30 \
            --num-prompts 200 \
-           --concurrency {{inputs.parameters.concurrency}} \
+           --concurrency 1 \
            --random-seed 42 \
            --streaming \
-           --request-count 200 \
+           --request-count {{inputs.parameters.request_count}} \
            --warmup-request-count 10 \
            --url http://vllm-service:80 \
-           --serrvice-metrics-url http://dcgm-exporter.prometheus.svc.cluster.local:9400/metrics \
+           --server-metrics-url http://dcgm-exporter.prometheus.svc.cluster.local:9400/metrics \
            --artifact-dir ${ARTIFACT_BASE_DIR}/{{workflow.uid}}/{{inputs.parameters.model-id}}/{{inputs.parameters.artifact_suffix}} \
            --verbose
       outputs:

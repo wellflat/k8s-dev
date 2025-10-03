@@ -11,8 +11,9 @@ spec:
   parallelism: 3
   arguments:
     parameters:
+      - name: dataset-id
+        value: HuggingFaceH4/OpenR1-Math-220k-default-verified
       - name: model-id
         value: openai/gpt-oss-20b
-      - name: dataset-id
-        value: Open-Orca/OpenOrca
-    
+      - name: request_count
+        value: 100
