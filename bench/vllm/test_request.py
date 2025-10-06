@@ -4,12 +4,14 @@ from openai import OpenAI
 # vLLMサーバーのURLをbase_urlに指定します。
 # vLLMは認証を必要としないため、api_keyはダミーの文字列で問題ありません
 BASE_URL="http://localhost:30201/v1"
-client = OpenAI(base_url=BASE_URL, api_key="vllm")
+#BASE_URL="http://localhost:4000/v1"
+client = OpenAI(base_url=BASE_URL, api_key="dummy-key")
 
 # vLLMサーバー起動時に指定したモデル名
 #MODEL_NAME = "elyza/Llama-3-ELYZA-JP-8B"
 #MODEL_NAME = "meta-llama/Llama-3.1-8B-Instruct"
 MODEL_NAME = "openai/gpt-oss-20b"
+#MODEL_NAME = "gpt-oss-20b"
 
 def request_chat_completion_non_streaming(prompts: str):
     """
@@ -24,8 +26,8 @@ def request_chat_completion_non_streaming(prompts: str):
             messages=[
                 {"role": "user", "content": prompts}
             ],
-            max_tokens=500,
-            temperature=0.7,
+            max_tokens=2048,
+            temperature=1.0,
             stream=False
         )
         
@@ -52,8 +54,8 @@ def request_chat_completion_streaming(prompts: str):
             messages=[
                 {"role": "user", "content": prompts }
             ],
-            max_tokens=500,
-            temperature=0.8,
+            max_tokens=2048,
+            temperature=1.0,
             stream=True
         )
 
@@ -72,6 +74,7 @@ def request_chat_completion_streaming(prompts: str):
 
 
 if __name__ == "__main__":
-    prompts = "仕事の熱意を取り戻すためのアイデアを5つ挙げてください"
+    #prompts = "仕事の熱意を取り戻すためのアイデアを5つ挙げてください"
+    prompts = "Find the sum of all integer bases $b>9$ for which $17_b$ is a divisor of $97_b.$"
     request_chat_completion_non_streaming(prompts)
     request_chat_completion_streaming(prompts)

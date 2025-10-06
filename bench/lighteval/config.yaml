@@ -1,0 +1,17 @@
+model_parameters:
+  provider: "openai"
+  model_name: "openai/openai/gpt-oss-20b"
+  base_url: "http://localhost:30201/v1"
+  api_key: ""  
+  generation_parameters:
+  # pass@k評価の場合、temperatureは高い値にしてtop_pやtop_kを調整して評価
+    temperature: 1.0
+    max_new_tokens: 16384
+    top_p: 1.0
+    top_k: 50
+    min_p: 0.0
+    seed: 12345
+    repetition_penalty: 1.0
+    frequency_penalty: 0.0
+
+#max_length=16384,skip_special_tokens=False,generation_parameters={temperature:1,top_p:1,top_k:40,min_p:0,max_new_tokens:16384}

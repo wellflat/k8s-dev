@@ -1,0 +1,46 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: lighteval-job
+  labels:
+    app: lighteval
+spec:
+  template:
+    spec:
+      containers:
+        - name: lighteval-container
+          image: wellflat/lighteval:latest
+          volumeMounts:
+            - name: hf-data
+              mountPath: /root/.cache/huggingface/hub
+            - name: lighteval-data
+              mountPath: /root/.cache/huggingface/lighteval
+          env:
+            - name: HF_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: hf-token-secret
+                  key: hf_token
+          command: ["/bin/bash", "-c"]
+          args:
+          - |
+            lighteval endpoint litellm \
+            'provider=openai,model_name=openai/openai/gpt-oss-20b,'\
+            'base_url=http://vllm-service:80/v1,api_key=dummy,'\
+            'generation_parameters={"temperature":1.0,"max_new_tokens":16384,"top_k":10,"top_p":1.0,"min_p":0.0,"repetition_penalty":1.0,"frequency_penalty":0.0}' \
+            "lighteval|aime25|0" \
+            --output-dir "/root/.cache/huggingface/lighteval/results"
+        # lighteval endpoint litellm config.yaml "lighteval|aime25|0" \
+        #  --output-dir "/root/.cache/huggingface/hub/lighteval_results"
+      restartPolicy: Never
+      volumes:
+        - name: hf-data
+          persistentVolumeClaim:
+            claimName: hf-data-pvc
+        - name: lighteval-data
+          persistentVolumeClaim:
+            claimName: lighteval-data-pvc
+      
+      # GPUは不要なため、nodeSelectorを削除またはコメントアウト
+      # nodeSelector:
+      #   nvidia.com/gpu.product: "NVIDIA-A100-SXM4-80GB"

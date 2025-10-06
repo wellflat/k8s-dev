@@ -26,3 +26,30 @@ spec:
   storageClassName: ""
   volumeName: hf-data-pv
 ---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: lighteval-data-pv
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteMany
+  hostPath:
+    path: /mnt/lustre/cache/huggingface/lighteval
+    type: DirectoryOrCreate
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: lighteval-data-pvc
+  namespace: default
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: ""
+  volumeName: lighteval-data-pv
+---
