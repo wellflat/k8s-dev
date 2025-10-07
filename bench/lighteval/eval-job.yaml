@@ -27,7 +27,7 @@ spec:
             lighteval endpoint litellm \
             'provider=openai,model_name=openai/openai/gpt-oss-20b,'\
             'base_url=http://vllm-service:80/v1,api_key=dummy,'\
-            'generation_parameters={"temperature":1.0,"max_new_tokens":16384,"top_k":10,"top_p":1.0,"min_p":0.0,"repetition_penalty":1.0,"frequency_penalty":0.0}' \
+            'generation_parameters={"temperature":1.0,"max_new_tokens":16384,"top_k":50,"top_p":1.0,"min_p":0.0,"repetition_penalty":1.0,"frequency_penalty":0.0}' \
             "lighteval|aime25|0" \
             --output-dir "/root/.cache/huggingface/lighteval/results"
         # lighteval endpoint litellm config.yaml "lighteval|aime25|0" \

@@ -48,8 +48,10 @@ spec:
             --dtype=auto \
             --trust-remote-code \
             --enable-chunked-prefill \
+            --enforce-eager \
+            --swap-space=8 \
             --max-model-len=16384 \
-            --max-num-batched-tokens=1024 \
+            --max-num-batched-tokens=2048 \
             --gpu-memory-utilization=0.9 \
             --tensor-parallel-size=1
         #--quantization fp8

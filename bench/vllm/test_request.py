@@ -74,7 +74,7 @@ def request_chat_completion_streaming(prompts: str):
 
 
 if __name__ == "__main__":
-    #prompts = "仕事の熱意を取り戻すためのアイデアを5つ挙げてください"
-    prompts = "Find the sum of all integer bases $b>9$ for which $17_b$ is a divisor of $97_b.$"
+    prompts = "仕事の熱意を取り戻すためのアイデアを5つ挙げてください"
+    #prompts = "Find the sum of all integer bases $b>9$ for which $17_b$ is a divisor of $97_b.$"
     request_chat_completion_non_streaming(prompts)
     request_chat_completion_streaming(prompts)
