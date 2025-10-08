@@ -1,0 +1,5 @@
+# https://github.com/NVIDIA/dcgm-exporter
+nodeSelector:
+  nvidia.com/gpu.mode: "compute"
+servicemonitor:
+  enabled: true
