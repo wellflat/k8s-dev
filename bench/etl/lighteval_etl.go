@@ -34,11 +34,8 @@ type ConfigGeneral struct {
 type Results map[string]TaskResult
 
 // TaskResult は各タスクの結果を格納します。
-// JSONのキーに`@`が含まれるため、jsonタグでフィールド名を指定します。
-type TaskResult struct {
-	PassAtK        float64 `json:"pass@k_with_k&n" dynamodbav:"pass_at_k"`
-	PassAtKStdErr  float64 `json:"pass@k_with_k&n_stderr" dynamodbav:"pass_at_k_stderr"`
-}
+// "acc"や"pass@k"などキーが動的に変わるため、map[string]float64として定義します。
+type TaskResult map[string]float64
 
 // ModelConfig は "model_config" オブジェクトに対応します。
 type ModelConfig struct {
@@ -118,7 +115,9 @@ func main() {
 	fmt.Println("\n--- ベンチマーク結果 ---")
 	for taskName, taskResult := range resultFile.Results {
 		fmt.Printf("  タスク: %s\n", taskName)
-		fmt.Printf("    pass@k_with_k&n: %.4f (stderr: %.4f)\n", taskResult.PassAtK, taskResult.PassAtKStdErr)
+		for metricName, value := range taskResult {
+			fmt.Printf("    %s: %v\n", metricName, value)
+		}
 	}
 
 	fmt.Println("===================================================")
