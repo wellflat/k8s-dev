@@ -6,13 +6,21 @@
 # このステージでは、lightevalのソースコードをクローンし、
 # 必要なPython依存関係をインストールします。
 # ==============================================================================
-FROM python:3.12-slim AS builder
+FROM nvidia/cuda:12.6.0-devel-ubuntu22.04 AS builder
 
-# システムの依存関係をインストール (git)
+# システムの依存関係をインストール (git, python)
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     git \
+    python3.12 \
+    python3.12-venv \
+    python3-pip \
     && rm -rf /var/lib/apt/lists/*
+
+# python3とpipのシンボリックリンクを設定
+RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.12 1 && \
+    update-alternatives --install /usr/bin/pip pip /usr/bin/pip 1
+
 
 # Pythonの仮想環境を作成
 ENV VENV_PATH=/opt/venv
@@ -26,7 +34,11 @@ RUN pip install --upgrade pip
 WORKDIR /app
 RUN git clone https://github.com/huggingface/lighteval.git .
 
-# lightevalの依存関係をインストール
+# PyTorch (CUDA対応版) をインストール
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install torch --index-url https://download.pytorch.org/whl/cu121
+
+# lightevalの依存関係をインストール (PyTorchはインストール済みのためスキップされる)
 # extrasとしてlitellmプロキシに必要なendpointを含める
 RUN --mount=type=cache,target=/root/.cache/pip \
     pip install ".[endpoint]" emoji "litellm[caching]" accelerate
@@ -37,13 +49,16 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 # このステージでは、ビルドステージでインストールしたライブラリと
 # ソースコードをコピーし、実行可能なイメージを作成します。
 # ==============================================================================
-FROM python:3.12-slim
+FROM nvidia/cuda:12.6.0-runtime-ubuntu22.04
 
-# gitをインストール (lightevalの依存ライブラリGitPythonが実行時に必要とするため)
+# 実行に必要な依存関係をインストール (git, curl, python)
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-    git curl \
+    git \
+    curl \
+    python3.12 \
     && rm -rf /var/lib/apt/lists/*
+RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.12 1
 
 # Builderステージから仮想環境をコピー
 # これにより、最終イメージにビルドツールやヘッダーファイルが含まれるのを防ぎます
@@ -55,7 +70,7 @@ ENV OPENAI_API_KEY="dummy"
 # Builderステージからソースコードをコピー
 WORKDIR /app
 COPY --from=builder /app .
-COPY config.yaml run_eval.sh .
+COPY config.yaml accelerate_config.yaml run_eval.sh .
 
 # コンテナ起動時のデフォルトコマンドとしてbashを起動
 # これにより、コンテナ内でインタラクティブにlightevalコマンドを実行できます
