@@ -8,18 +8,19 @@
 # ==============================================================================
 FROM nvidia/cuda:12.6.0-devel-ubuntu22.04 AS builder
 
+ENV DEBIAN_FRONTEND=noninteractive
+
 # システムの依存関係をインストール (git, python)
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-    git \
-    python3.12 \
-    python3.12-venv \
-    python3-pip \
+    apt-get install -y --no-install-recommends software-properties-common && \
+    add-apt-repository ppa:deadsnakes/ppa && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends git python3.12 python3.12-venv python3-pip \
     && rm -rf /var/lib/apt/lists/*
 
 # python3とpipのシンボリックリンクを設定
 RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.12 1 && \
-    update-alternatives --install /usr/bin/pip pip /usr/bin/pip 1
+    update-alternatives --install /usr/bin/python python /usr/bin/python3.12 1
 
 
 # Pythonの仮想環境を作成
@@ -51,14 +52,18 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 # ==============================================================================
 FROM nvidia/cuda:12.6.0-runtime-ubuntu22.04
 
+ENV DEBIAN_FRONTEND=noninteractive
+
 # 実行に必要な依存関係をインストール (git, curl, python)
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-    git \
-    curl \
-    python3.12 \
+    apt-get install -y --no-install-recommends software-properties-common && \
+    add-apt-repository ppa:deadsnakes/ppa && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends git curl python3.12 \
     && rm -rf /var/lib/apt/lists/*
-RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.12 1
+
+RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.12 1 && \
+    update-alternatives --install /usr/bin/python python /usr/bin/python3.12 1
 
 # Builderステージから仮想環境をコピー
 # これにより、最終イメージにビルドツールやヘッダーファイルが含まれるのを防ぎます
@@ -70,7 +75,7 @@ ENV OPENAI_API_KEY="dummy"
 # Builderステージからソースコードをコピー
 WORKDIR /app
 COPY --from=builder /app .
-COPY config.yaml accelerate_config.yaml run_eval.sh .
+COPY config.yaml run_eval.sh .
 
 # コンテナ起動時のデフォルトコマンドとしてbashを起動
 # これにより、コンテナ内でインタラクティブにlightevalコマンドを実行できます
