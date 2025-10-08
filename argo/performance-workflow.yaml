@@ -6,7 +6,7 @@ metadata:
     workflows.argoproj.io/archive-strategy: "false"
 spec:
   workflowTemplateRef:
-    name: inference-workflow-template
+    name: performance-workflow-template
   serviceAccountName: workflow-sa
   parallelism: 3
   arguments:

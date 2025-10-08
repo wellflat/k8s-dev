@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: inference-workflow-template
+  name: performance-workflow-template
 spec:
   entrypoint: benchmark-lifecycle
   templates:

@@ -29,7 +29,7 @@ RUN git clone https://github.com/huggingface/lighteval.git .
 # lightevalの依存関係をインストール
 # extrasとしてlitellmプロキシに必要なendpointを含める
 RUN --mount=type=cache,target=/root/.cache/pip \
-    pip install ".[endpoint]" emoji "litellm[caching]"
+    pip install ".[endpoint]" emoji "litellm[caching]" accelerate
 
 # ==============================================================================
 # Final Stage
