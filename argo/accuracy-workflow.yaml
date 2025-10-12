@@ -13,3 +13,5 @@ spec:
     parameters:
       - name: model-id
         value: openai/gpt-oss-20b
+      - name: task
+        value: lighteval|aime25|0
