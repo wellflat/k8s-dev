@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
-  generateName: workflow-
+  generateName: workflow-performance-
   labels:
     workflows.argoproj.io/archive-strategy: "false"
 spec:
