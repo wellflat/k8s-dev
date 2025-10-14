@@ -26,4 +26,4 @@ roleRef:
   name: executor
 subjects:
 - kind: ServiceAccount
-  name: default
+  name: default  # こちらのServiceAccountはdefaultで動く

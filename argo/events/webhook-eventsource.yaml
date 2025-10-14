@@ -5,22 +5,25 @@ metadata:
 spec:
   service:
     ports:
-      - port: 12000
-        targetPort: 12000
+      - port: 8080
+        targetPort: 8080
     metadata:
       labels:
-        foo: bar
+        app.kubernetes.io/name: webhook-eventsource
+        app.kubernetes.io/component: eventsource
+        app.kubernetes.io/part-of: argo-events
       annotations:
-        foo: bar
+        description: "Receives performance and accuracy events for ML model evaluation"
   webhook:
     # event-source can run multiple HTTP servers. Simply define a unique port to start a new HTTP server
-    example:
-      # port to run HTTP server on
-      port: "12000"
-      # endpoint to listen to
-      endpoint: /example
-      # HTTP request method to allow. In this case, only POST requests are accepted
+    performance:
+      port: "8080"
+      endpoint: /performance
       method: POST
+    #accuracy:
+    #  port: "8080"
+    #  endpoint: /accuracy
+    #  method: POST
 
 #    example-foo:
 #      port: "12000"

@@ -2,13 +2,23 @@ apiVersion: argoproj.io/v1alpha1
 kind: EventBus
 metadata:
   name: default
+  namespace: argo-events
 spec:
   nats:
     native:
-      # Optional, defaults to 3. If it is < 3, set it to 3, that is the minimal requirement.
       replicas: 3
+
+      #auth: token
+# NATSは従来のデフォルト設定だったが今は非推奨で、JetstreamによるEventBusが推奨されている
+# ただ、現環境だとJetstreamのStatefulsetが起動せず、要調査
+# PVの設定などが原因の可能性アリ
+#
+#  nats:
+#    native:
+      # Optional, defaults to 3. If it is < 3, set it to 3, that is the minimal requirement.
+#      replicas: 3
       # Optional, authen strategy, "none" or "token", defaults to "none"
-      auth: token
+#      auth: token
 #      containerTemplate:
 #        resources:
 #          requests:
