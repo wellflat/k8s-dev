@@ -19,11 +19,11 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: executor-default
+  name: executor-workflow-sa
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
   name: executor
 subjects:
 - kind: ServiceAccount
-  name: default  # こちらのServiceAccountはdefaultで動く
+  name: workflow-sa

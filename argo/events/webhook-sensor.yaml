@@ -7,12 +7,12 @@ metadata:
     app.kubernetes.io/component: sensor
     app.kubernetes.io/part-of: argo-events
   annotations:
-    description: "Detects 'performance' event and triggers a hello-world workflow"
+    description: "Detects 'performance' event and triggers a performance workflow"
 spec:
   template:
     serviceAccountName: workflow-sa
   dependencies:
-    - name: test-dep
+    - name: performance-dep
       eventSourceName: webhook
       eventName: performance
   triggers:
@@ -25,26 +25,30 @@ spec:
               apiVersion: argoproj.io/v1alpha1
               kind: Workflow
               metadata:
-                generateName: webhook-
+                generateName: workflow-performance-
               spec:
-                entrypoint: hello-world
+                workflowTemplateRef:
+                  name: performance-workflow-template
+                serviceAccountName: workflow-sa
+                parallelism: 3
                 arguments:
                   parameters:
-                  - name: message
-                    # the value will get overridden by event payload from test-dep
-                    value: hello world
-                templates:
-                - name: hello-world
-                  inputs:
-                    parameters:
-                    - name: message
-                  container:
-                    image: busybox
-                    command: [echo]
-                    args: ["{{inputs.parameters.message}}"]
+                    - name: dataset-id
+                      value: "will be overridden"
+                    - name: model-id
+                      value: "will be overridden"
+                    - name: request_count
+                      value: "will be overridden"
           parameters:
             - src:
-                dependencyName: test-dep
-                # リクエストボディ(JSON)の中から、'message'フィールドの値を抽出します
-                dataKey: body.message
+                dependencyName: performance-dep
+                dataKey: body.dataset-id
               dest: spec.arguments.parameters.0.value
+            - src:
+                dependencyName: performance-dep
+                dataKey: body.model-id
+              dest: spec.arguments.parameters.1.value
+            - src:
+                dependencyName: performance-dep
+                dataKey: body.request_count
+              dest: spec.arguments.parameters.2.value

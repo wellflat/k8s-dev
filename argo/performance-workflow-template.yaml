@@ -3,6 +3,7 @@ kind: WorkflowTemplate
 metadata:
   name: performance-workflow-template
 spec:
+  serviceAccountName: workflow-sa # Apply to all templates in this workflow
   entrypoint: benchmark-lifecycle
   templates:
     - name: benchmark-lifecycle
