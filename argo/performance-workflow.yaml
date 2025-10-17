@@ -7,7 +7,7 @@ metadata:
 spec:
   workflowTemplateRef:
     name: performance-workflow-template
-    clusterScope: true
+  entrypoint: benchmark-lifecycle
   serviceAccountName: workflow-sa
   parallelism: 3
   arguments:
@@ -17,4 +17,4 @@ spec:
       - name: model-id
         value: openai/gpt-oss-20b
       - name: request_count
-        value: 100
+        value: "50"

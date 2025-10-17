@@ -7,6 +7,11 @@ spec:
   entrypoint: benchmark-lifecycle
   templates:
     - name: benchmark-lifecycle
+      inputs:
+        parameters:
+          - name: dataset-id
+          - name: model-id
+          - name: request_count
       dag:
         tasks:
           - name: hf-dataset-loader
@@ -14,18 +19,18 @@ spec:
             arguments:
               parameters:
                 - name: dataset-id
-                  value: "{{workflow.parameters.dataset-id}}"
+                  value: "{{inputs.parameters.dataset-id}}"
           - name: genai-perf-sweep
             template: genai-perf-profile-template
             dependencies: [hf-dataset-loader]
             arguments:
               parameters:
                 - name: model-id
-                  value: "{{workflow.parameters.model-id}}"
+                  value: "{{inputs.parameters.model-id}}"
                 - name: output_token_mean
                   value: "{{item.output_token_mean}}"
                 - name: request_count
-                  value: "{{workflow.parameters.request_count}}"
+                  value: "{{inputs.parameters.request_count}}"
                 - name: artifact_suffix
                   value: "{{item.artifact_suffix}}"
             withParam: >
@@ -92,22 +97,22 @@ spec:
         command: ["/bin/bash", "-c"]
         args:
           - |
-           genai-perf profile -m {{inputs.parameters.model-id}} \
-           --endpoint-type chat \
-           --synthetic-input-tokens-mean 150 \
-           --synthetic-input-tokens-stddev 30 \
-           --output-tokens-mean {{inputs.parameters.output_token_mean}} \
-           --output-tokens-stddev 30 \
-           --num-prompts 200 \
-           --concurrency 1 \
-           --random-seed 42 \
-           --streaming \
-           --request-count {{inputs.parameters.request_count}} \
-           --warmup-request-count 10 \
-           --url http://vllm-service:80 \
-           --server-metrics-url http://dcgm-exporter.prometheus.svc.cluster.local:9400/metrics \
-           --artifact-dir ${ARTIFACT_BASE_DIR}/{{workflow.uid}}/{{inputs.parameters.model-id}}/{{inputs.parameters.artifact_suffix}} \
-           --verbose
+            genai-perf profile -m {{inputs.parameters.model-id}} \
+            --endpoint-type chat \
+            --synthetic-input-tokens-mean 150 \
+            --synthetic-input-tokens-stddev 30 \
+            --output-tokens-mean {{inputs.parameters.output_token_mean}} \
+            --output-tokens-stddev 30 \
+            --num-prompts 200 \
+            --concurrency 1 \
+            --random-seed 42 \
+            --streaming \
+            --request-count {{inputs.parameters.request_count}} \
+            --warmup-request-count 10 \
+            --url http://vllm-service:80 \
+            --server-metrics-url http://dcgm-exporter.prometheus.svc.cluster.local:9400/metrics \
+            --artifact-dir ${ARTIFACT_BASE_DIR}/{{workflow.uid}}/{{inputs.parameters.model-id}}/{{inputs.parameters.artifact_suffix}} \
+            --verbose
       outputs:
         artifacts:
           - name: benchmark-results
