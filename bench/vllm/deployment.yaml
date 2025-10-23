@@ -17,21 +17,18 @@ spec:
     spec:
       containers:
       - name: vllm
-        #image: wellflat/vllm-server:v0.10.0
-        #image: wellflat/vllm-server:gptoss
-        image: vllm/vllm-openai:gptoss
+        #image: vllm/vllm-openai:v0.11.0
+        image: vllm/vllm-openai:v0.10.2
         ports:
           - containerPort: 8000
         resources:
           limits:
-            nvidia.com/gpu: 1
+            nvidia.com/gpu: 8
           requests:
-            nvidia.com/gpu: 1
+            nvidia.com/gpu: 8
         env:
-        - name: VLLM_ATTENTION_BACKEND
-          value: TRITON_ATTN_VLLM_V1
         - name: MODEL_ID
-          value: openai/gpt-oss-20b
+          value: openai/gpt-oss-120b
           #value: elyza/Llama-3-ELYZA-JP-8B
         - name: HF_TOKEN
           valueFrom:
@@ -51,9 +48,10 @@ spec:
             --enforce-eager \
             --swap-space=8 \
             --max-model-len=16384 \
-            --max-num-batched-tokens=2048 \
-            --gpu-memory-utilization=0.9 \
-            --tensor-parallel-size=1
+            --max-num-batched-tokens=8192 \
+            --gpu-memory-utilization=0.85 \
+            --tensor-parallel-size=8 \
+            --async-scheduling
         #--quantization fp8
         #Your GPU does not have native support for FP8 computation but FP8 quantization is being used. Weight-only FP8 compression will be used leveraging the Marlin kernel. This may degrade performance for compute-heavy workloads.
         #securityContext:
@@ -69,18 +67,18 @@ spec:
             path: /health
             port: 8000
           initialDelaySeconds: 120
-          periodSeconds: 30
+          periodSeconds: 60
         readinessProbe:
           httpGet:
             path: /health
             port: 8000
           initialDelaySeconds: 120
-          periodSeconds: 30
+          periodSeconds: 60
         startupProbe:
           httpGet:
             path: /health
             port: 8000
-          initialDelaySeconds: 300
+          initialDelaySeconds: 120
       volumes:
         - name: hf-data
           persistentVolumeClaim:
