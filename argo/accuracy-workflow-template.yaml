@@ -32,6 +32,9 @@ spec:
               data: |
                 model_parameters:
                   model_name: "{{inputs.parameters.model-id}}"
+                  provider: "openai"
+                  base_url: "http://vllm-service:80/v1"
+                  api_key: ""
                   generation_parameters:
                     temperature: 1.0 
                     max_new_tokens: 16384
@@ -68,11 +71,16 @@ spec:
                 name: hf-token-secret
                 key: hf_token
         command: ["/bin/bash", "-c"]
+        #args:
+        #  - |
+        #    lighteval accelerate /etc/lighteval/config.yaml \
+        #    "{{inputs.parameters.task}}" \
+        #    --output-dir ${ARTIFACT_BASE_DIR}/{{workflow.uid}}
         args:
           - |
-            lighteval accelerate /etc/lighteval/config.yaml \
+            lighteval endpoint litellm /etc/lighteval/config.yaml \
             "{{inputs.parameters.task}}" \
-            --output-dir ${ARTIFACT_BASE_DIR}/{{workflow.uid}}  
+            --output-dir ${ARTIFACT_BASE_DIR}/{{workflow.uid}} 
       outputs:
         artifacts:
           - name: benchmark-results

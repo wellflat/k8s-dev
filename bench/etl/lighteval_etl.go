@@ -151,7 +151,7 @@ func saveBenchmarkToDB(ctx context.Context, dynamodbClient *dynamodb.Client, tab
 	// TODO: ノード情報を動的に取得する。現在は固定値。
 	nodeItem := Node{
 		GPUName:   "NVIDIA-A100-SXM4-80GB",
-		GPUCount:  1,
+		GPUCount:  4,
 		NodeCount: 1,
 	}
 

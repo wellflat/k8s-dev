@@ -23,12 +23,13 @@ spec:
           - containerPort: 8000
         resources:
           limits:
-            nvidia.com/gpu: 8
+            nvidia.com/gpu: 4
           requests:
-            nvidia.com/gpu: 8
+            nvidia.com/gpu: 4
         env:
         - name: MODEL_ID
           value: openai/gpt-oss-120b
+          #value: google/gemma-3-27b-it
           #value: elyza/Llama-3-ELYZA-JP-8B
         - name: HF_TOKEN
           valueFrom:
@@ -50,7 +51,7 @@ spec:
             --max-model-len=16384 \
             --max-num-batched-tokens=8192 \
             --gpu-memory-utilization=0.85 \
-            --tensor-parallel-size=8 \
+            --tensor-parallel-size=4 \
             --async-scheduling
         #--quantization fp8
         #Your GPU does not have native support for FP8 computation but FP8 quantization is being used. Weight-only FP8 compression will be used leveraging the Marlin kernel. This may degrade performance for compute-heavy workloads.
@@ -78,7 +79,7 @@ spec:
           httpGet:
             path: /health
             port: 8000
-          initialDelaySeconds: 120
+          initialDelaySeconds: 240
       volumes:
         - name: hf-data
           persistentVolumeClaim:
