@@ -13,7 +13,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// saveBenchmarkToDB は、パースされたベンチマーク結果をDynamoDBに保存します。
+// パースされたベンチマーク結果をDynamoDBに保存
 func saveBenchmarkToDB(ctx context.Context, resultFile *ResultFile, objectKey string) (*BenchmarkItem, error) {
 	// TODO: ノード情報を動的に取得する。現在は固定値。
 	nodeItem := Node{
@@ -49,7 +49,7 @@ func saveBenchmarkToDB(ctx context.Context, resultFile *ResultFile, objectKey st
 	modelName := resultFile.ConfigGeneral.ModelConfig.ModelName
 	modelName = strings.Replace(modelName, "openai/openai/", "openai/", 1)
 
-	// S3のオブジェクトキーからWorkflowIDを抽出
+	// S3のオブジェクトキーからWorkflowIDを抽出 (workflow-accuracy-xxxxx)
 	workflowID := uuid.NewString() // デフォルトはUUID
 	parts := strings.SplitN(objectKey, "/", 2)
 	if len(parts) > 0 && parts[0] != "" {
@@ -62,7 +62,7 @@ func saveBenchmarkToDB(ctx context.Context, resultFile *ResultFile, objectKey st
 		return nil, fmt.Errorf("total_evaluation_time_secondes のパースに失敗しました: %w", err)
 	}
 
-	// DynamoDBに保存するアイテムを作成
+	// DynamoDBに保存するアイテム
 	benchmarkItem := &BenchmarkItem{
 		WorkflowID:           workflowID,
 		Timestamp:            now.Unix(), // Unixタイムスタンプ（秒）をソートキーとして使用
@@ -77,7 +77,6 @@ func saveBenchmarkToDB(ctx context.Context, resultFile *ResultFile, objectKey st
 		TotalEvaluationTime:  totalEvaluationTime,
 	}
 
-	// Goの構造体をDynamoDBの属性値マップに変換
 	av, err := attributevalue.MarshalMap(benchmarkItem)
 	if err != nil {
 		return nil, fmt.Errorf("DynamoDBアイテムのマーシャリングに失敗しました: %w", err)

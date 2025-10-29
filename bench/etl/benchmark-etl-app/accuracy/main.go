@@ -24,7 +24,7 @@ var (
 	tableName      = os.Getenv("TABLE_NAME")
 )
 
-// init関数はLambdaの起動時に一度だけ実行され、AWS SDKクライアントを初期化します。
+// init関数はLambdaの起動時に一度だけ実行される
 func init() {
 	// 環境変数 TABLE_NAME が設定されているか確認
 	if tableName == "" {
@@ -63,14 +63,14 @@ func handler(ctx context.Context, s3Event events.S3Event) error {
 		log.Printf("S3イベントを受信しました: バケット '%s', キー '%s'\n", bucketName, objectKey)
 
 		// S3からJSONファイルを読み込む
-		getObjectOutput, err := s3Client.GetObject(ctx, &s3.GetObjectInput{ // グローバルなs3Clientを使用
+		getObjectOutput, err := s3Client.GetObject(ctx, &s3.GetObjectInput{
 			Bucket: aws.String(bucketName),
 			Key:    aws.String(objectKey),
 		})
 		if err != nil {
 			return fmt.Errorf("S3オブジェクトの取得に失敗しました (バケット: %s, キー: %s): %w", bucketName, objectKey, err)
 		}
-		defer getObjectOutput.Body.Close() // 必ずBodyを閉じる
+		defer getObjectOutput.Body.Close()
 
 		jsonData, err := io.ReadAll(getObjectOutput.Body) // io.ReadAllを使用 (ioutil.ReadAllは非推奨)
 		if err != nil {
@@ -109,7 +109,7 @@ func handler(ctx context.Context, s3Event events.S3Event) error {
 
 		// DynamoDBにアイテムを保存
 		log.Println("\nDynamoDBにベンチマーク結果を登録します...")
-		item, err := saveBenchmarkToDB(ctx, &resultFile, objectKey) // グローバルなdynamodbClientとtableNameを使用
+		item, err := saveBenchmarkToDB(ctx, &resultFile, objectKey)
 		if err != nil {
 			return fmt.Errorf("DynamoDBへのアイテム登録に失敗しました: %w", err)
 		}
