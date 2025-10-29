@@ -1,6 +1,6 @@
 #!/bin/sh
 
-STACK_NAME=BenchmarkAccuracyETLStack
+STACK_NAME=BenchmarkETLStack
 PROFILE=wellflat
 
 # 1. アプリケーションをビルドします

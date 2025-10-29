@@ -1,0 +1,124 @@
+{
+  "config_general": {
+    "lighteval_sha": "d1cd0750c36af38f91b41f0afff11d2389c4ffb1",
+    "num_fewshot_seeds": 1,
+    "max_samples": null,
+    "job_id": "0",
+    "start_time": 17287552.46435078,
+    "end_time": 17289206.22000552,
+    "total_evaluation_time_secondes": "1653.7556547410786",
+    "model_config": {
+      "model_name": "openai/openai/gpt-oss-120b",
+      "generation_parameters": {
+        "num_blocks": null,
+        "block_size": null,
+        "early_stopping": null,
+        "repetition_penalty": 1.0,
+        "frequency_penalty": 0.0,
+        "length_penalty": null,
+        "presence_penalty": null,
+        "max_new_tokens": 16384,
+        "min_new_tokens": null,
+        "seed": 12345,
+        "stop_tokens": null,
+        "temperature": 1.0,
+        "top_k": 50,
+        "min_p": 0.0,
+        "top_p": 1.0,
+        "truncate_prompt": null,
+        "cache_implementation": null,
+        "response_format": null
+      },
+      "system_prompt": null,
+      "cache_dir": "~/.cache/huggingface/lighteval",
+      "provider": "openai",
+      "base_url": "http://vllm-service:80/v1",
+      "api_key": "",
+      "concurrent_requests": 10,
+      "verbose": false,
+      "max_model_length": null,
+      "api_max_retry": 8,
+      "api_retry_sleep": 1.0,
+      "api_retry_multiplier": 2.0,
+      "timeout": null
+    },
+    "model_name": "openai/openai/gpt-oss-120b"
+  },
+  "results": {
+    "community|igakuqa|0": {
+      "em": 0.8353909465020576,
+      "em_stderr": 0.009714981214049163
+    },
+    "all": {
+      "em": 0.8353909465020576,
+      "em_stderr": 0.009714981214049163
+    }
+  },
+  "versions": {},
+  "config_tasks": {
+    "community|igakuqa|0": {
+      "name": "igakuqa",
+      "prompt_function": "prompt_fn",
+      "hf_repo": "wellflat/IgakuQA-filtered",
+      "hf_subset": "default",
+      "metrics": [
+        {
+          "metric_name": "em",
+          "higher_is_better": true,
+          "category": "GENERATIVE",
+          "sample_level_fn": "ExactMatches(aggregation_function=max, normalize_gold=None, normalize_pred=None, strip_strings=True, type_exact_match=full)",
+          "corpus_level_fn": "mean",
+          "batched_compute": false
+        }
+      ],
+      "hf_revision": null,
+      "hf_filter": null,
+      "hf_avail_splits": [
+        "train"
+      ],
+      "evaluation_splits": [
+        "train"
+      ],
+      "few_shots_split": null,
+      "few_shots_select": null,
+      "generation_size": 100,
+      "generation_grammar": null,
+      "stop_sequence": [],
+      "num_samples": null,
+      "suite": [
+        "community"
+      ],
+      "original_num_docs": -1,
+      "effective_num_docs": -1,
+      "must_remove_duplicate_docs": false,
+      "num_fewshots": 0,
+      "version": 0
+    }
+  },
+  "summary_tasks": {
+    "community|igakuqa|0": {
+      "hashes": {
+        "hash_examples": "c91b50bdd1a306ae",
+        "hash_full_prompts": "ef46db3751d8e999",
+        "hash_input_tokens": "e337f20a3293f09b",
+        "hash_cont_tokens": "e337f20a3293f09b"
+      },
+      "truncated": 0,
+      "non_truncated": 0,
+      "padded": 0,
+      "non_padded": 0
+    }
+  },
+  "summary_general": {
+    "hashes": {
+      "hash_examples": "622ad0c1cdf0e894",
+      "hash_full_prompts": "c166e5d20ad58f4e",
+      "hash_input_tokens": "5ffe57298888a5f6",
+      "hash_cont_tokens": "5ffe57298888a5f6"
+    },
+    "truncated": 0,
+    "non_truncated": 0,
+    "padded": 0,
+    "non_padded": 0
+  }
+}

@@ -1,8 +1,6 @@
-module accuracy-etl-app
+module benchmark-etl
 
-go 1.24.0
-
-toolchain go1.24.9
+go 1.23.1
 
 require (
 	github.com/aws/aws-lambda-go v1.50.0
@@ -10,7 +8,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/config v1.31.15
 	github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue v1.20.19
 	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.52.2
-	github.com/aws/aws-sdk-go-v2/service/s3 v1.88.7
+	github.com/aws/aws-sdk-go-v2/service/s3 v1.89.0
 	github.com/google/uuid v1.6.0
 )
 
@@ -32,5 +30,4 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.35.3 // indirect
 	github.com/aws/aws-sdk-go-v2/service/sts v1.38.9 // indirect
 	github.com/aws/smithy-go v1.23.1 // indirect
-	github.com/stretchr/testify v1.10.0 // indirect
 )

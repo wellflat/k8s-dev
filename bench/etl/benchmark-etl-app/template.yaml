@@ -48,8 +48,8 @@ Resources:
       BuildMethod: go1.x
     Properties:
       FunctionName: accuracy-etl-function
-      CodeUri: .
-      Handler: main
+      CodeUri: ./accuracy
+      Handler: bootstrap
       Runtime: provided.al2023
       Architectures:
       - x86_64
