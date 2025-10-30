@@ -11,17 +11,16 @@ import (
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/config" // v2 SDK config
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
-	"github.com/aws/aws-sdk-go-v2/config" // v2 SDK config
 )
 
-// DynamoDBのテーブル名は環境変数から取得
-// グローバル変数としてAWS SDK v2クライアントとテーブル名を定義
+// グローバル変数として依存関係を定義
 var (
-	dynamodbClient *dynamodb.Client
-	s3Client       *s3.Client
-	tableName      = os.Getenv("TABLE_NAME")
+	s3Client         *s3.Client
+	benchmarkService *BenchmarkService
+	tableName        = os.Getenv("TABLE_NAME")
 )
 
 // init関数はLambdaの起動時に一度だけ実行される
@@ -38,9 +37,14 @@ func init() {
 		log.Fatalf("AWS SDK設定の読み込みに失敗しました: %v", err)
 	}
 
-	// S3クライアントとDynamoDBクライアントの作成
+	// S3クライアントの作成
 	s3Client = s3.NewFromConfig(cfg)
-	dynamodbClient = dynamodb.NewFromConfig(cfg)
+	// DynamoDBクライアントの作成
+	dynamodbClient := dynamodb.NewFromConfig(cfg)
+	// RepositoryとServiceの初期化
+	repo := NewDynamoDBRepository(dynamodbClient, tableName)
+	benchmarkService = NewBenchmarkService(repo)
+
 	log.Println("AWS SDK v2クライアントが正常に初期化されました。")
 }
 
@@ -109,7 +113,7 @@ func handler(ctx context.Context, s3Event events.S3Event) error {
 
 		// DynamoDBにアイテムを保存
 		log.Println("\nDynamoDBにベンチマーク結果を登録します...")
-		item, err := saveBenchmarkToDB(ctx, &resultFile, objectKey)
+		item, err := benchmarkService.CreateBenchmarkFromS3Result(ctx, &resultFile, objectKey)
 		if err != nil {
 			return fmt.Errorf("DynamoDBへのアイテム登録に失敗しました: %w", err)
 		}
