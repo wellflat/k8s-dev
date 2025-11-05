@@ -2,7 +2,7 @@ from openai import OpenAI
 
 # OpenAIクライアントを初期化
 # vLLMサーバーのURLをbase_urlに指定します。
-# vLLMは認証を必要としないため、api_keyはダミーの文字列で問題ありません
+# vLLMは認証を必要としないため、api_keyはダミーの文字列
 BASE_URL="http://localhost:30201/v1"
 #BASE_URL="http://localhost:4000/v1"
 client = OpenAI(base_url=BASE_URL, api_key="dummy-key")
@@ -15,8 +15,8 @@ MODEL_NAME = "openai/gpt-oss-20b"
 
 def request_chat_completion_non_streaming(prompts: str):
     """
-    Chat Completions APIを非ストリーミングモードで呼び出すサンプル
-    レスポンス全体を一度に受け取ります
+    Chat Completions APIを非ストリーミングモードで呼び出す
+    レスポンス全体を一度に受け取る
     """
     print("--- Chat Completions 非ストリーミングリクエスト ---")
     
@@ -43,8 +43,8 @@ def request_chat_completion_non_streaming(prompts: str):
 
 def request_chat_completion_streaming(prompts: str):
     """
-    Chat Completions APIをストリーミングモードで呼び出すサンプル
-    生成されたトークンを逐次受け取ります
+    Chat Completions APIをストリーミングモードで呼び出す
+    生成されたトークンを逐次受け取る
     """
     print("\n--- Chat Completions ストリーミングリクエスト ---")
     
@@ -75,6 +75,5 @@ def request_chat_completion_streaming(prompts: str):
 
 if __name__ == "__main__":
     prompts = "仕事の熱意を取り戻すためのアイデアを5つ挙げてください"
-    #prompts = "Find the sum of all integer bases $b>9$ for which $17_b$ is a divisor of $97_b.$"
     request_chat_completion_non_streaming(prompts)
     request_chat_completion_streaming(prompts)
