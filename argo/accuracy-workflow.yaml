@@ -14,4 +14,5 @@ spec:
       - name: model-id
         value: openai/openai/gpt-oss-120b
       - name: task
-        value: community|igakuqa|0
+        value: lighteval|aime25|0
+        #value: community|igakuqa|0
