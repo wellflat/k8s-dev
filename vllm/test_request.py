@@ -10,7 +10,7 @@ client = OpenAI(base_url=BASE_URL, api_key="dummy-key")
 # vLLMサーバー起動時に指定したモデル名
 #MODEL_NAME = "elyza/Llama-3-ELYZA-JP-8B"
 #MODEL_NAME = "meta-llama/Llama-3.1-8B-Instruct"
-MODEL_NAME = "openai/gpt-oss-20b"
+MODEL_NAME = "openai/gpt-oss-120b"
 #MODEL_NAME = "gpt-oss-20b"
 
 def request_chat_completion_non_streaming(prompts: str):

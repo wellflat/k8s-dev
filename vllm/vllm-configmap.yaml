@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vllm-config
+data: ## ref https://docs.vllm.ai/en/latest/configuration/optimization.html
+  config.yaml: |
+    dtype: auto
+    trust-remote-code: true
+    enable-chunked-prefill: true
+    enforce-eager: true
+    swap-space: 8
+    max-model-len: 16384
+    max-num-batched-tokens: 8192
+    gpu-memory-utilization: 0.85
+    tensor-parallel-size: 4
+#    async-scheduling: true # 0.11.0だとクラッシュする
+#    quantization: fp8

@@ -9,12 +9,14 @@ spec:
     name: performance-workflow-template
   entrypoint: benchmark-lifecycle
   serviceAccountName: workflow-sa
-  parallelism: 3
+  parallelism: 1
   arguments:
     parameters:
       - name: dataset-id
         value: HuggingFaceH4/OpenR1-Math-220k-default-verified
       - name: model-id
-        value: openai/gpt-oss-20b
+        value: openai/gpt-oss-120b
+      - name: concurrency
+        value: "4"
       - name: request_count
-        value: "50"
+        value: "100"

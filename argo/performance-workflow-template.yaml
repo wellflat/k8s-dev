@@ -11,6 +11,7 @@ spec:
         parameters:
           - name: dataset-id
           - name: model-id
+          - name: concurrency
           - name: request_count
       dag:
         tasks:
@@ -29,15 +30,15 @@ spec:
                   value: "{{inputs.parameters.model-id}}"
                 - name: output_token_mean
                   value: "{{item.output_token_mean}}"
+                - name: concurrency
+                  value: "{{inputs.parameters.concurrency}}"
                 - name: request_count
                   value: "{{inputs.parameters.request_count}}"
                 - name: artifact_suffix
                   value: "{{item.artifact_suffix}}"
             withParam: >
               [
-                {"output_token_mean": "100", "artifact_suffix": "token100"},
-                {"output_token_mean": "200", "artifact_suffix": "token200"},
-                {"output_token_mean": "400", "artifact_suffix": "token400"}
+                {"output_token_mean": "200", "artifact_suffix": "token200"}
               ]
           - name: collect-artifacts
             template: collect-artifacts-template
@@ -75,6 +76,7 @@ spec:
         parameters:
           - name: model-id
           - name: output_token_mean
+          - name: concurrency
           - name: request_count
           - name: artifact_suffix
       container:
@@ -99,12 +101,12 @@ spec:
           - |
             genai-perf profile -m {{inputs.parameters.model-id}} \
             --endpoint-type chat \
-            --synthetic-input-tokens-mean 150 \
+            --synthetic-input-tokens-mean 200 \
             --synthetic-input-tokens-stddev 30 \
             --output-tokens-mean {{inputs.parameters.output_token_mean}} \
             --output-tokens-stddev 30 \
             --num-prompts 200 \
-            --concurrency 1 \
+            --concurrency {{inputs.parameters.concurrency}} \
             --random-seed 42 \
             --streaming \
             --request-count {{inputs.parameters.request_count}} \
