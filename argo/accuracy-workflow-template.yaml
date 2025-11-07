@@ -49,10 +49,10 @@ spec:
         resources:
           limits:
             cpu: 8
-            nvidia.com/gpu: 1
+            #nvidia.com/gpu: 1
           requests:
             cpu: 8
-            nvidia.com/gpu: 1
+            #nvidia.com/gpu: 1
         volumeMounts:
           - name: hf-data
             mountPath: /root/.cache/huggingface/hub

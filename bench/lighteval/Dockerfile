@@ -33,7 +33,7 @@ RUN pip install --upgrade pip
 
 # lightevalのソースコードをクローン
 WORKDIR /app
-RUN git clone https://github.com/huggingface/lighteval.git .
+RUN git clone https://github.com/wellflat/lighteval.git .
 
 # PyTorch (CUDA対応版) をインストール
 RUN --mount=type=cache,target=/root/.cache/pip \
