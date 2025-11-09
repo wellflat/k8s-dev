@@ -12,6 +12,6 @@ data: ## ref https://docs.vllm.ai/en/latest/configuration/optimization.html
     max-model-len: 16384
     max-num-batched-tokens: 8192
     gpu-memory-utilization: 0.85
-    tensor-parallel-size: 8
+    tensor-parallel-size: 2
     async-scheduling: true # 0.11.0だとクラッシュする
 #    quantization: fp8

@@ -12,7 +12,9 @@ spec:
   arguments:
     parameters:
       - name: model-id
-        value: openai/openai/gpt-oss-120b
+        value: openai/openai/gpt-oss-20b
       - name: task
         #value: lighteval|aime25|0
         value: community|igakuqa|0
+      - name: task-filepath
+        value: community_tasks/igakuqa_evals.py

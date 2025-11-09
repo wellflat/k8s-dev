@@ -1,35 +1,75 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: performance-workflow-template
+  name: performance-workflow-template-withparam
 spec:
-  serviceAccountName: workflow-sa
+  serviceAccountName: workflow-sa # Apply to all templates in this workflow
   entrypoint: benchmark-lifecycle
   templates:
     - name: benchmark-lifecycle
       inputs:
         parameters:
+          - name: dataset-id
           - name: model-id
           - name: concurrency
-          - name: output_token_mean
           - name: request_count
       dag:
         tasks:
-          - name: genai-perf-profile
+          - name: hf-dataset-loader
+            template: hf-dataset-loader-template
+            arguments:
+              parameters:
+                - name: dataset-id
+                  value: "{{inputs.parameters.dataset-id}}"
+          - name: genai-perf-sweep
             template: genai-perf-profile-template
+            dependencies: [hf-dataset-loader]
             arguments:
               parameters:
                 - name: model-id
                   value: "{{inputs.parameters.model-id}}"
                 - name: output_token_mean
-                  value: "{{inputs.parameters.output_token_mean}}"
+                  value: "{{item.output_token_mean}}"
                 - name: concurrency
                   value: "{{inputs.parameters.concurrency}}"
                 - name: request_count
                   value: "{{inputs.parameters.request_count}}"
+                - name: artifact_suffix
+                  value: "{{item.artifact_suffix}}"
+            withParam: >
+              [
+                {"output_token_mean": "200", "artifact_suffix": "token200"}
+              ]
           - name: collect-artifacts
             template: collect-artifacts-template
-            dependencies: [genai-perf-profile]
+            dependencies: [genai-perf-sweep]
+    
+    - name: hf-dataset-loader-template
+      inputs:
+        parameters:
+          - name: dataset-id
+      container:
+        image: wellflat/hf-dataloader:latest
+        volumeMounts:
+          - name: hf-data
+            mountPath: /root/.cache/huggingface/hub
+        env:
+          - name: HF_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: hf-token-secret
+                key: hf_token
+          - name: HF_HUB_ENABLE_TRANSFER
+            value: "1"
+        args: # huggingface-cli の引数
+          - "download"
+          - "--repo-type"
+          - "dataset"
+          - "{{inputs.parameters.dataset-id}}"
+      volumes:
+        - name: hf-data
+          persistentVolumeClaim:
+            claimName: hf-data-pvc
     
     - name: genai-perf-profile-template
       inputs:
@@ -38,36 +78,28 @@ spec:
           - name: output_token_mean
           - name: concurrency
           - name: request_count
+          - name: artifact_suffix
         artifacts:
           - name: genai-perf-config
-            path: /root/genai_perf_config.yaml
+            path: /workspace/genai_perf_config.yaml
             raw:
               data: |
-                model_names: "{{inputs.parameters.model-id}}"
-                endpoint:
-                  type: chat
-                  streaming: true
-                  url: "http://vllm-service:80"
-                  server_metrics_url: "http://dcgm-exporter.prometheus.svc.cluster.local:9400/metrics"
-                perf_analyzer:
-                  stimulus: {'concurrency': "{{inputs.parameters.concurrency}}"}
-                  stability_percentage: 999
-                  verbose: true
-                  warmup_request_count: 10
-                  measurement:
-                    mode: request_count
-                    num: {{inputs.parameters.request_count}}
-                input:
-                  num_dataset_entries: 200
-                  random_seed: 42
-                  synthetic_tokens:
-                    mean: 200
-                    stddev: 30
-                  output_tokens:
-                    mean: {{inputs.parameters.output_token_mean}}
-                    stddev: 30
-                output:
-                  artifact_directory: "/root/.cache/huggingface/hub/benchmark_results/genai-perf/{{workflow.uid}}/{{inputs.parameters.model-id}}"          
+                model: "{{inputs.parameters.model-id}}"
+                endpoint_type: chat
+                synthetic_input_tokens_mean: 200
+                synthetic_input_tokens_stddev: 30
+                output_tokens_mean: "{{inputs.parameters.output_token_mean}}"
+                output_tokens_stddev: 30
+                num_prompts: 200
+                concurrency: "{{inputs.parameters.concurrency}}"
+                random_seed: 42
+                streaming: true
+                request_count: "{{inputs.parameters.request_count}}"
+                warmup_request_count: 10
+                url: "http://vllm-service:80"
+                server_metrics_url: "http://dcgm-exporter.prometheus.svc.cluster.local:9400/metrics"
+                artifact_dir: "${ARTIFACT_BASE_DIR}/{{workflow.uid}}/{{inputs.parameters.model-id}}/{{inputs.parameters.artifact_suffix}}"
+                verbose: true
       container:
         image: nvcr.io/nvidia/tritonserver:25.07-py3-sdk
         resources:
@@ -88,13 +120,14 @@ spec:
         command: ["/bin/bash", "-c"]
         args:
           - |
-            cat /root/genai_perf_config.yaml
-            genai-perf config -f /root/genai_perf_config.yaml
+            ls -l /workspace
+          #  genai-perf config -f /etc/genai-perf/config.yaml
+          #  genai-perf profile
       outputs:
         artifacts:
           - name: benchmark-results
             # This path MUST match the --artifact-dir used in the genai-perf command above.
-            path: /root/.cache/huggingface/hub/benchmark_results/genai-perf/{{workflow.uid}}/{{inputs.parameters.model-id}}
+            path: /root/.cache/huggingface/hub/benchmark_results/genai-perf/{{workflow.uid}}/{{inputs.parameters.model-id}}/{{inputs.parameters.artifact_suffix}}
             archive:
               none: { }
       volumes:

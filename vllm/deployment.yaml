@@ -23,12 +23,12 @@ spec:
           - containerPort: 8000
         resources:
           limits:
-            nvidia.com/gpu: 8
+            nvidia.com/gpu: 2
           requests:
-            nvidia.com/gpu: 8      
+            nvidia.com/gpu: 2     
         env:
         - name: MODEL_ID
-          value: openai/gpt-oss-120b
+          value: openai/gpt-oss-20b
           #value: google/gemma-3-27b-it
           #value: elyza/Llama-3-ELYZA-JP-8B
         - name: HF_TOKEN

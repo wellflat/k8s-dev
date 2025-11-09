@@ -12,11 +12,11 @@ spec:
   parallelism: 1
   arguments:
     parameters:
-      - name: dataset-id
-        value: HuggingFaceH4/OpenR1-Math-220k-default-verified
       - name: model-id
-        value: openai/gpt-oss-120b
+        value: openai/gpt-oss-20b
       - name: concurrency
-        value: "4"
+        value: "1"
+      - name: output_token_mean
+        value: "200"
       - name: request_count
-        value: "100"
+        value: "50"
