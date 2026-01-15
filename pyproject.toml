@@ -5,17 +5,18 @@ description = "deplopment on kubernetes workspace"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "aiperf>=0.3.0",
     "datasets>=4.1.0",
     #    "accelerate>=1.9.0",
     #    "fastapi>=0.115.13",
     "emoji>=2.15.0",
     "huggingface-hub[cli]>=0.33.0",
-    "lighteval[multilingual]>=0.11.0",
-    "litellm[caching,proxy]>=1.77.5",
+    #"lighteval[multilingual]>=0.11.0",
+    #""litellm[caching,proxy]>=1.77.5",
     "openai>=1.91.0",
     #    "torch>=2.7.1",
     #    "torchaudio>=2.7.1",
     #    "torchvision>=0.22.1",
     #    "transformers>=4.53.3",
-    "polar>=0.0.127",
+    #"polar>=0.0.127",
 ]

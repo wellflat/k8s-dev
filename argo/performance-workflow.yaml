@@ -15,8 +15,8 @@ spec:
       - name: model-id
         value: openai/gpt-oss-20b
       - name: concurrency
-        value: "1"
+        value: "2"
       - name: output_token_mean
         value: "200"
       - name: request_count
-        value: "50"
+        value: "100"

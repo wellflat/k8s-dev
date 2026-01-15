@@ -27,6 +27,9 @@ spec:
                   value: "{{inputs.parameters.concurrency}}"
                 - name: request_count
                   value: "{{inputs.parameters.request_count}}"
+          - name: get-workflow-info
+            template: get-workflow-info-template
+            dependencies: [genai-perf-profile]
           - name: collect-artifacts
             template: collect-artifacts-template
             dependencies: [genai-perf-profile]
@@ -102,6 +105,18 @@ spec:
           persistentVolumeClaim:
             claimName: hf-data-pvc
 
+    - name: get-workflow-info-template
+      container:
+        image: wellflat/get-workflow:latest
+        command: [sh, -c]
+        args: [get_workflow_app]
+        env:
+          - name: IN_CLUSTER_CONFIG
+            value: "true"
+          - name: WORKFLOW_NAMESPACE
+            value: "{{workflow.namespace}}"
+          - name: WORKFLOW_NAME
+            value: "{{workflow.name}}"
     - name: collect-artifacts-template
       #inputs:
       #  artifacts:
