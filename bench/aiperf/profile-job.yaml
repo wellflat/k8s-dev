@@ -1,0 +1,48 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: aiperf-job
+  labels:
+    app: aiperf
+spec:
+  template:
+    spec:
+      containers:
+        - name: aiperf-container
+          image: wellflat/aiperf:latest
+          volumeMounts:
+            - name: hf-data
+              mountPath: /root/.cache/huggingface/hub
+          env:
+            - name: MODEL_ID
+              value: openai/gpt-oss-20b
+            - name: ARTIFACT_BASE_DIR
+              value: /root/.cache/huggingface/hub/benchmark_results/aiperf
+          command: ["/bin/bash", "-c"]
+          args:
+           - |
+            aiperf profile -m ${MODEL_ID} \
+            --endpoint-type chat \
+            --synthetic-input-tokens-mean 200 \
+            --synthetic-input-tokens-stddev 30 \
+            --output-tokens-mean 300 \
+            --output-tokens-stddev 30 \
+            --num-prompts 200  \
+            --concurrency 1 \
+            --random-seed 42 \
+            --streaming \
+            --request-count 100 \
+            --warmup-request-count 10 \
+            --url http://vllm-service:80 \
+            --gpu-telemetry http://dcgm-exporter.prometheus.svc.cluster.local:9400/metrics \
+            --api-key test_key \
+            --artifact-dir ${ARTIFACT_BASE_DIR}/${MODEL_ID}/
+      restartPolicy: Never
+      volumes:
+        # This volume mount is kept from the original template in case you need to
+        # interact with other cached models within this step.
+        - name: hf-data
+          persistentVolumeClaim:
+            claimName: hf-data-pvc
+      nodeSelector:
+        nvidia.com/gpu.product: "NVIDIA-A100-SXM4-80GB"
