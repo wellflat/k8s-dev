@@ -1,0 +1,50 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: policy-test
+  labels:
+    app: sandbox-test
+spec:
+  # gVisorを使用している場合は、次の行のコメントを解除してください
+  runtimeClassName: gvisor
+  containers:
+  - name: network-tester
+    image: curlimages/curl:latest
+    command: ["/bin/sh", "-c"]
+    args:
+    - |
+      echo "---"
+      echo "ネットワークポリシーのテストを開始します..."
+      echo "ポリシーは google.com と dl-cdn.alpinelinux.org の 443/TCP ポートへの外向き通信を許可します。"
+      echo "---"
+      echo ""
+
+      echo "1. [許可] https://google.com への接続をテストします..."
+      if curl -s --head --connect-timeout 5 https://google.com > /dev/null; then
+        echo "=> 成功: https://google.com への接続が成功しました。"
+      else
+        echo "=> 失敗: https://google.com への接続が失敗しました。ポリシーまたはDNS設定を確認してください。"
+      fi
+      echo ""
+
+      echo "2. [拒否] https://www.example.com への接続をテストします..."
+      if curl -s --head --connect-timeout 5 https://www.example.com > /dev/null; then
+        echo "=> 失敗: https://www.example.com への接続が予期せず成功しました。ポリシーが正しく適用されていません。"
+      else
+        echo "=> 成功: https://www.example.com への接続が期待通り失敗しました。"
+      fi
+      echo ""
+
+      echo "3. [拒否] http://neverssl.com (Port 80) への接続をテストします..."
+      if curl -s --head --connect-timeout 5 http://neverssl.com > /dev/null; then
+        echo "=> 失敗: http://neverssl.com への接続が予期せず成功しました。ポート制限が機能していません。"
+      else
+        echo "=> 成功: http://neverssl.com への接続が期待通り失敗しました。"
+      fi
+      echo ""
+
+      echo "---"
+      echo "テスト完了。Podはスリープ状態になります。"
+      echo "kubectl logs policy-test-pod でログを確認できます。"
+      echo "---"
+      sleep infinity

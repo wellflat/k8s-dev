@@ -1,0 +1,16 @@
+apiVersion: "cilium.io/v2"
+kind: CiliumNetworkPolicy
+metadata:
+  name: default-deny-all
+  # このポリシーは、保護したいNamespaceに適用する必要があります。
+  # 例えば 'default' Namespaceに適用する場合:
+  # kubectl apply -f default-deny-all.yaml -n default
+spec:
+  # 空のendpointSelectorは、このポリシーが適用されたNamespace内のすべてのPodを選択します。
+  endpointSelector: {}
+
+  # ingressのリストが空の場合、すべての内向き(Ingress)通信が拒否されます。
+  ingress: []
+
+  # egressのリストが空の場合、すべての外向き(Egress)通信が拒否されます。
+  egress: []

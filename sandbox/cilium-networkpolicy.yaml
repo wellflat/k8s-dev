@@ -1,0 +1,27 @@
+apiVersion: "cilium.io/v2"
+kind: CiliumNetworkPolicy
+metadata:
+  name: allow-only-google
+spec:
+  endpointSelector:
+    matchLabels:
+      app: sandbox-test
+  egress:
+  # 1. DNS解決の許可 (kube-system 名前空間の 53/UDP を明示)
+  - toEndpoints:
+    - matchLabels:
+        "k8s:io.kubernetes.pod.namespace": kube-system
+  - toPorts:
+    - ports:
+      - port: "53"
+        protocol: UDP
+      rules:
+        dns:
+        - matchPattern: "*"
+  # 2. google.com へのアクセス許可
+  - toFQDNs:
+    - matchName: "google.com"
+    toPorts:
+    - ports:
+      - port: "443"
+        protocol: TCP
