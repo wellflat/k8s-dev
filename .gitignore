@@ -1,12 +1,13 @@
 .venv/
+__pycache__/
 hello/hello
 *.safetensors
 *.csv
 *.png
-__pycache__/
+*.gz
+*secret.yaml
 .env
 .litellm_cache/
-*.gz
 hf_transformers/src/
 
 # Kubespray inventory credentials
