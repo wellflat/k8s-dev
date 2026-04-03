@@ -8,3 +8,7 @@ __pycache__/
 .litellm_cache/
 *.gz
 hf_transformers/src/
+
+# Kubespray inventory credentials
+llm-d/inventory/*/credentials/
+llm-d/inventory/*/inventory.ini
