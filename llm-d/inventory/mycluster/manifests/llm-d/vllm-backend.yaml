@@ -1,0 +1,93 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vllm-backend
+  namespace: llm-d-system
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: vllm-backend
+  template:
+    metadata:
+      labels:
+        app: vllm-backend
+    spec:
+      runtimeClassName: nvidia
+      nodeSelector:
+        nvidia.com/gpu: "true"
+      volumes:
+        - name: hf-cache
+          persistentVolumeClaim:
+            claimName: vllm-hf-cache
+        - name: shm
+          emptyDir:
+            medium: Memory
+            sizeLimit: 8Gi
+      containers:
+        - name: vllm
+          image: vllm/vllm-openai:latest
+          command:
+            - /bin/sh
+            - -lc
+          args:
+            - >
+              vllm serve nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B-BF16
+              --host 0.0.0.0
+              --port 8000
+              --served-model-name nemotron-3-nano-30b-a3b-bf16
+              --trust-remote-code
+              --async-scheduling
+              --tensor-parallel-size 1
+              --max-model-len 32768
+              --max-num-seqs 4
+              --gpu-memory-utilization 0.8
+          ports:
+            - containerPort: 8000
+          resources:
+            requests:
+              cpu: "4"
+              memory: 16Gi
+              nvidia.com/gpu: "1"
+            limits:
+              cpu: "8"
+              memory: 32Gi
+              nvidia.com/gpu: "1"
+          startupProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            periodSeconds: 10
+            failureThreshold: 360
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          volumeMounts:
+            - name: hf-cache
+              mountPath: /root/.cache/huggingface
+            - name: shm
+              mountPath: /dev/shm
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vllm-backend
+  namespace: llm-d-system
+spec:
+  selector:
+    app: vllm-backend
+  ports:
+    - name: http
+      port: 8000
+      targetPort: 8000

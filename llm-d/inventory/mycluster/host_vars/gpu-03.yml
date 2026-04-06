@@ -1,0 +1,11 @@
+---
+node_labels:
+  nvidia.com/gpu: "true"
+
+containerd_additional_runtimes:
+  - name: nvidia
+    type: "io.containerd.runc.v2"
+    options:
+      BinaryName: "/usr/bin/nvidia-container-runtime"
+      Root: ""
+      SystemdCgroup: true

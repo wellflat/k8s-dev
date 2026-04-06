@@ -1,0 +1,5 @@
+agentgateway:
+  enabled: true
+
+inferenceExtension:
+  enabled: true
