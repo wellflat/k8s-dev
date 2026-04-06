@@ -85,9 +85,11 @@ metadata:
   name: vllm-backend
   namespace: llm-d-system
 spec:
+  type: NodePort
   selector:
     app: vllm-backend
   ports:
     - name: http
       port: 8000
       targetPort: 8000
+      nodePort: 30080

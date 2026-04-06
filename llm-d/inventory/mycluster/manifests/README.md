@@ -19,6 +19,7 @@
 
 - `gpu/` 配下のうち、`gpu-smoke-test.yaml` は確認用です。常駐リソースではありません。
 - `llm-d/` 配下は、Gateway 基盤と vLLM backend を再適用するときの作業用 manifest です。
+- `vllm-backend` Service は `NodePort` `30080` で公開し、GPU ノード IP から直接アクセスできるようにしています。
 
 ## 再適用の順番
 
@@ -109,6 +110,21 @@ Gateway と vLLM backend を確認します。
 ```bash
 kubectl -n llm-d-system get gateway,httproute,svc,pods
 kubectl -n llm-d-system get pvc,pv
+```
+
+ローカル PC から GPU ノード IP に直接アクセスして vLLM backend を確認する例です。
+
+```bash
+curl -sS http://192.168.250.103:30080/health
+curl -sS http://192.168.250.103:30080/v1/models
+```
+
+Python スクリプトで completion API を確認する例です。
+
+```bash
+export LLM_D_BASE_URL=http://192.168.250.103:30080/v1
+export LLM_D_MODEL=nemotron-3-nano-30b-a3b-bf16
+uv run python llm-d/test_completion.py
 ```
 
 Gateway 経由で OpenAI 互換 API を確認します。
