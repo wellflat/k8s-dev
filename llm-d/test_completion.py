@@ -11,13 +11,14 @@ from openai import OpenAI
 
 
 DEFAULT_BASE_URL = "http://127.0.0.1:8080/v1"
-DEFAULT_MODEL = "nemotron-3-nano-30b-a3b-bf16"
-DEFAULT_PROMPT = "Kubernetes と llm-d の疎通確認です。短く応答してください。"
+DEFAULT_MODEL = "gpt-oss-20b"
+#DEFAULT_PROMPT = "Kubernetes と llm-d の疎通確認です。短く応答してください。"
+DEFAULT_PROMPT = "こんにちは"
 
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Send a test request to an OpenAI-compatible completion API."
+        description="Send a test request to an OpenAI-compatible chat completion API."
     )
     parser.add_argument(
         "--base-url",
@@ -41,12 +42,12 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--prompt",
         default=DEFAULT_PROMPT,
-        help="Prompt text sent to the completion API.",
+        help="User prompt text sent to the chat completion API.",
     )
     parser.add_argument(
         "--max-tokens",
         type=int,
-        default=128,
+        default=2048,
         help="Maximum number of tokens to generate.",
     )
     parser.add_argument(
@@ -78,9 +79,9 @@ def main() -> int:
     )
 
     try:
-        response = client.completions.create(
+        response = client.chat.completions.create(
             model=args.model,
-            prompt=args.prompt,
+            messages=[{"role": "user", "content": args.prompt}],
             max_tokens=args.max_tokens,
             temperature=args.temperature,
         )
@@ -99,7 +100,8 @@ def main() -> int:
         print(json.dumps(payload, ensure_ascii=False, indent=2))
         return 1
 
-    text = choices[0].get("text", "")
+    message = choices[0].get("message") or {}
+    text = message.get("content", "")
     print(text.strip())
     return 0
 

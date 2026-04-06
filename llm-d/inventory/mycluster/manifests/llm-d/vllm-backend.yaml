@@ -34,10 +34,10 @@ spec:
             - -lc
           args:
             - >
-              vllm serve nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B-BF16
+              vllm serve openai/gpt-oss-20b
               --host 0.0.0.0
               --port 8000
-              --served-model-name nemotron-3-nano-30b-a3b-bf16
+              --served-model-name gpt-oss-20b
               --trust-remote-code
               --async-scheduling
               --tensor-parallel-size 1

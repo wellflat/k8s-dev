@@ -4,4 +4,4 @@ gateway:
   exposure:
     type: internal
   service:
-    type: ClusterIP
+    type: NodePort

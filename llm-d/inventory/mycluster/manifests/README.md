@@ -123,7 +123,7 @@ Python スクリプトで completion API を確認する例です。
 
 ```bash
 export LLM_D_BASE_URL=http://192.168.250.103:30080/v1
-export LLM_D_MODEL=nemotron-3-nano-30b-a3b-bf16
+export LLM_D_MODEL=gpt-oss-20b
 uv run python llm-d/test_completion.py
 ```
 
