@@ -19,6 +19,6 @@ def challenge() -> Task:
             use_tools([bash()]),
             generate(),
         ],
-        sandbox="k8s",
+        sandbox="local",
         scorer=includes(),
     )

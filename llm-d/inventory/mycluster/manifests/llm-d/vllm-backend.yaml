@@ -29,32 +29,41 @@ spec:
       containers:
         - name: vllm
           image: vllm/vllm-openai:latest
+          env:
+            - name: HF_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: hf-token
+                  key: HF_TOKEN
           command:
             - /bin/sh
             - -lc
           args:
             - >
-              vllm serve openai/gpt-oss-20b
+              vllm serve google/gemma-4-31b-it
               --host 0.0.0.0
               --port 8000
-              --served-model-name gpt-oss-20b
               --trust-remote-code
-              --async-scheduling
-              --tensor-parallel-size 1
+              --tensor-parallel-size 2
+              --quantization awq
+              --gpu-memory-utilization 0.90
               --max-model-len 32768
-              --max-num-seqs 4
-              --gpu-memory-utilization 0.8
+              --max-num-seqs 32
+              --max-paddings 2048
+              --async-scheduling
+              --enforce-eager
+              --reasoning-parser gemma4
           ports:
             - containerPort: 8000
           resources:
             requests:
               cpu: "4"
               memory: 16Gi
-              nvidia.com/gpu: "1"
+              nvidia.com/gpu: "2"
             limits:
               cpu: "8"
               memory: 32Gi
-              nvidia.com/gpu: "1"
+              nvidia.com/gpu: "2"
           startupProbe:
             httpGet:
               path: /health
@@ -66,13 +75,13 @@ spec:
               path: /health
               port: 8000
             initialDelaySeconds: 30
-            periodSeconds: 10
+            periodSeconds: 30
           readinessProbe:
             httpGet:
               path: /health
               port: 8000
             initialDelaySeconds: 10
-            periodSeconds: 5
+            periodSeconds: 30
           volumeMounts:
             - name: hf-cache
               mountPath: /root/.cache/huggingface

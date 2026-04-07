@@ -13,6 +13,7 @@
   - `llm-d-infra-values.yaml`: `llm-d-infra` Helm values
   - `vllm-hf-cache-pv.yaml`: vLLM cache 用 PV/PVC
   - `vllm-backend.yaml`: vLLM backend Deployment/Service
+    - `llm-d-system` namespace の Secret `hf-token` から `HF_TOKEN` を注入する
   - `vllm-backend-route.yaml`: Gateway から vLLM backend への HTTPRoute
 
 ## 運用メモ
@@ -89,6 +90,14 @@ helm upgrade --install llm-d-infra llm-d/llm-d-infra \
 ```
 
 ### 4. vLLM backend を再適用
+
+先に Hugging Face token を Secret として作成または更新します。
+
+```bash
+kubectl -n llm-d-system create secret generic hf-token \
+  --from-literal=HF_TOKEN='<your-huggingface-token>' \
+  --dry-run=client -o yaml | kubectl apply -f -
+```
 
 ```bash
 kubectl apply -f inventory/mycluster/manifests/llm-d/vllm-hf-cache-pv.yaml
