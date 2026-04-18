@@ -20,4 +20,4 @@ COPY --from=builder /root/.local /root/.local
 COPY . .
 
 ENV PATH=/root/.local/bin:$PATH
-CMD ["aiperf", "--help"]
+CMD ["aiperf", "profile", "--help"]
