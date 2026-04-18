@@ -10,5 +10,6 @@ dependencies = [
     "huggingface>=0.0.1",
     "inspect-ai>=0.3.205",
     "inspect-evals[personality]>=0.3.106",
+    "inspect-harbor>=0.4.15",
     "openai>=2.30.0",
 ]

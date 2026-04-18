@@ -25,10 +25,10 @@ spec:
         - name: shm
           emptyDir:
             medium: Memory
-            sizeLimit: 8Gi
+            sizeLimit: 16Gi
       containers:
         - name: vllm
-          image: vllm/vllm-openai:latest
+          image: vllm/vllm-openai:gemma4
           env:
             - name: HF_TOKEN
               valueFrom:
@@ -40,29 +40,26 @@ spec:
             - -lc
           args:
             - >
-              vllm serve google/gemma-4-31b-it
+              vllm serve google/gemma-4-31B-it
               --host 0.0.0.0
               --port 8000
               --trust-remote-code
               --tensor-parallel-size 2
-              --quantization awq
-              --gpu-memory-utilization 0.90
-              --max-model-len 32768
+              --gpu-memory-utilization 0.85
+              --max-model-len 131072
               --max-num-seqs 32
-              --max-paddings 2048
               --async-scheduling
               --enforce-eager
               --reasoning-parser gemma4
+              --tool-call-parser gemma4
+              --enable-auto-tool-choice
+              #--quantization=awq
           ports:
             - containerPort: 8000
           resources:
             requests:
-              cpu: "4"
-              memory: 16Gi
               nvidia.com/gpu: "2"
             limits:
-              cpu: "8"
-              memory: 32Gi
               nvidia.com/gpu: "2"
           startupProbe:
             httpGet:
