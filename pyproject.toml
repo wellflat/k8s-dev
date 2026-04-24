@@ -5,7 +5,7 @@ description = "deplopment on kubernetes workspace"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "aiperf>=0.3.0",
+    "aiperf>=0.7.0",
     "google-genai>=1.70.0",
     "huggingface>=0.0.1",
     "inspect-ai>=0.3.205",
